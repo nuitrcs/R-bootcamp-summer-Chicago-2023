@@ -9,6 +9,12 @@ editor_options:
   chunk_output_type: console
 ---
 
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(
+  eval=FALSE, warning=FALSE, error=FALSE
+)
+```
+
 # Data Wrangling
 
 ... or put differently, welcome to the real world. Real datasets are seldom as tidy and clean as those you have been working with so far. Real data is messy and often you'll need to clean and coerce it into the right format in order to actually analyze it. This session contains a number of examples that serve as cookbook recipes for common data wrangling tasks.
