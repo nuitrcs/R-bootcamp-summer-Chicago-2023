@@ -1,0 +1,994 @@
+---
+output:
+  html_document:
+    df_print: paged
+    code_download: TRUE
+    toc: true
+    toc_depth: 1
+editor_options:
+  chunk_output_type: console
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(
+  eval=FALSE, warning=FALSE, error=FALSE
+)
+```
+
+# This File
+
+This is an R Markdown file. The code in the gray chunks surrounded by \`\`\` is R code that you can run. There's a green triangle you can click to run all of the code in a chunk, or put your cursor in a line and press Command+Enter (Mac) or Control+Enter (PC) to execute that command (which can span multiple lines).
+
+We're using R Markdown instead of a R script so that we can include additional text and explanation in the file. In an .R script, everything has to be an R command or comment. Here, between chunks of R code, we can include text and other information.
+
+## Console Tips
+
+-   There's a space after the prompt (`>`)
+-   If you see a `+` instead of a `>`, R thinks the previous command wasn't finished and expects more input
+    -   If you're stuck with a `+`, you can use Control+C or the escape (esc) key to cancel the command and get the normal `>` prompt back.
+-   Use the up and down arrow keys to cycle through previous commands
+    -   List of previous commands is in the History tab in RStudio (with the Environment tab)
+-   Output starts with `[1]`; this number indexes the output values, since there can be more than one value as output
+
+# Packages
+
+R comes with lots of built-in basic functions (commands). But we almost always need to use functions from additional packages as well.
+
+-   Packages contain additional functions, and sometimes data sets
+-   Install packages once (for each major version of R)
+-   To update a package, re-install it
+-   Load packages in each R session where you want to use them
+
+## Installing
+
+-   RStudio often prompts you to install packages you're missing: if you open a file that uses a package that you don't have installed
+-   Do NOT put installation commands in R scripts or R Markdown files (included below only because we're teaching)
+
+```{r, installpackages, eval=FALSE}
+# install 1
+install.packages("praise")
+
+# install a few at once (put names in a vector)
+install.packages(c("palmerpenguins", "tidyverse", "janitor"))
+```
+
+Packages are installed from a repository. CRAN (Comprehensive R Archive Network) is the most common. People also install packages from Bioconductor and GitHub (process differs for these).
+
+The Packages tab in the bottom right of RStudio can help you install and update packages.
+
+## Using Packages
+
+Packages have additional functions in them. Go to the Packages tab to take a look. Click on a package name to pull up the package index.
+
+To use a package in your current session, use the `library()` function to load all of the functions (and other objects) in the package into your environment.
+
+You need a separate library command for each package. You do not need quotes around the package names.
+
+Put these at the top of your script or R Markdown file so people (collaborators or your future self) can see which packages are needed for the code.
+
+Only load the packages you need. Packages can conflict with each other, so don't load ones you aren't using.
+
+```{r}
+library(praise)
+library(palmerpenguins)  # we're going to use this later
+```
+
+# Import Data
+
+## Reading in a Data File
+
+Most of the time, you'll read in data from a file. For example:
+
+```{r}
+evp <- read.csv("data/ev_police_jan.csv")
+```
+
+Most data in R will be stored in a data frame (more below).
+
+As with other variables, when we type the name of the data frame, it will print the contents of the variable to the console.
+
+```{r, eval=FALSE}
+evp
+```
+
+Note: Evanston police data comes from the [Stanford Open Policing Project](https://openpolicing.stanford.edu/data/). This is a small subset of data: just January 2017.
+
+TIPS: if you get an error message that a file can't be found when you're trying to import it:
+
+1)  Check the spelling of the filename for typos
+
+2)  Check your working directory (`getwd()`) and make sure the path to the file is correct and completely specified given what your working directory is.
+
+3)  Make sure you extracted the contents of the .zip file you downloaded. We've seen some problems on Windows computers especially where a .zip file isn't really unzipped - it's just letting you see inside without actually expanding the contents and creating real files. Right click on the file and look for an Extract All or similar option.
+
+## From a Package
+
+Today, we're going to work with data on penguins from <https://github.com/allisonhorst/palmerpenguins>. It's been included in an R package: palmerpenguins.
+
+There's a data frame in the package called penguins. Like with functions in a package, we can use it once we've loaded the package with the library command above.
+
+```{r}
+penguins
+```
+
+## Manual Creation
+
+It's also possible to create a data frame from scratch. You will not do this often.
+
+```{r, manualdf}
+month_info <- data.frame(month=month.name,
+                         index=1:12,
+                         days=c(31,28,31,30,31,30,31,31,30,31,30,31))
+month_info
+```
+
+# Data Frame Basics
+
+-   Rectangles of data
+-   Rows are observations
+-   Columns are variables
+-   Columns (variables) have names
+-   Multiple vectors stuck together - each column is a vector
+-   Each column has 1 type of data (numeric, character, logical, etc.)
+-   Data frames can have columns with different types of data
+
+## What is a data frame?
+
+It has columns and rows. Let's look at it:
+
+```{r, eval=FALSE}
+View(evp)
+```
+
+Or we can look at a few rows in the console:
+
+```{r}
+head(evp)
+```
+
+What size is it?
+
+```{r}
+dim(evp)
+nrow(evp)
+ncol(evp)
+```
+
+What are the variables?
+
+```{r}
+names(evp)
+```
+
+What type of data is in each variable?
+
+```{r}
+str(evp)
+```
+
+Get some basic info about the variables:
+
+```{r}
+summary(evp)
+```
+
+## EXERCISE
+
+Using the `penguins` data frame, write commands to figure out:
+
+-   How many rows and columns?
+-   Names of the variables?
+
+```{r}
+
+
+
+```
+
+## Working with Variables
+
+Each column (variable) is a vector. We can access them individually with the `$` notation using the name of each variable:
+
+```{r}
+evp$location
+penguins$species
+```
+
+We can do things like count values, summarize numeric values, etc.
+
+```{r}
+table(evp$location)
+median(month_info$days)
+```
+
+We can also use the vectors in expressions:
+
+```{r}
+month_info$days/7
+```
+
+## EXERCISE
+
+Import data from "data/nu_degrees.csv" - save it in a variable (choose an appropriate name).
+
+Look at the data.
+
+What is the average (the function is mean()) number of bachelor's degrees issued in a year?
+
+What is the standard deviation in the number of doctoral degrees issued each year? The function is sd()
+
+How many total masters degrees were issued for the years in the data? Hint: sum()
+
+```{r}
+
+
+
+
+
+
+```
+
+Challenge: How many total degrees were issued each year? How many total degrees were issued across all years and types?
+
+```{r}
+
+```
+
+## Indexing by Position: Vectors
+
+We can access the individual values in vectors or data frame by their index position. We put the number of the element we want in \[\].
+
+Let's start with vectors:
+
+```{r}
+month_info$month
+month_info$month[1]
+```
+
+We can also select a range of values:
+
+```{r}
+1:5  # shortcut for making a vector with values 1, 2, 3, 4, 5
+month_info$month[1:5]
+```
+
+Or non-adjacent values by using a vector of values. We can make our own vector with the c() function:
+
+```{r}
+c(1, 3, 5, 7, 9, 11)
+month_info$month[c(1, 3, 5, 7, 9, 11)]
+```
+
+Negative indices mean to exclude the value at the given position:
+
+```{r}
+month_info$month[-1]
+month_info$month[-1:-6]
+
+table(month_info$days)
+table(month_info$days[-2])
+```
+
+## EXERCISE
+
+Using the data on Northwestern degrees from the last exercise:
+
+What is the mean number of bachelors degrees issued in the first 5 years of the data?
+
+What is the mean for the second 5 years in the data?
+
+What is the mean number of doctoral degrees per year excluding the most recent year of 2021-22?
+
+```{r}
+
+```
+
+## Detour: Tibbles vs. Data Frames
+
+`class()` tells us the type of the object -- what's stored in the variable.
+
+```{r}
+class(evp)
+```
+
+What is `penguins`?
+
+```{r}
+class(penguins)
+```
+
+"tbl_df" is a tibble data frame. These behave a little bit differently from normal data frames. You'll see tibbles instead of data frames within the tidyverse set of packages (and those packages that work within that framework).
+
+The biggest difference is that tibbles give you a tibble back when subsetting with \[\], while data frames sometimes give you a vector.
+
+For now: treat tibbles as data frames; be aware that there may be a few differences (one is coming below!). Mostly tibbles are more consistent in their behavior than data frames -- they like to stay as tibbles.
+
+## Indexing by Position: Data Frames
+
+With data frames, there are two dimensions (rows and columns), so we need two indices:
+
+```{r}
+month_info
+month_info[1, 1]
+month_info[2, 1]
+month_info[1, 2]
+```
+
+There is a shortcut if we want all rows or all columns -- we can leave one position blank:
+
+Select first row
+
+```{r}
+month_info[1,]
+```
+
+Select first two rows
+
+```{r}
+month_info[1:2,]
+```
+
+Select first column
+
+```{r}
+month_info[,1]
+```
+
+This gave us a vector back, but with `penguins`:
+
+```{r}
+penguins[,1]
+```
+
+we get a data frame/tibble back. This is one difference between tibbles and regular data frames.
+
+We can select rows and columns at the same time:
+
+```{r}
+month_info[6:7, 1:2]
+```
+
+If we want rows or columns that aren't next to each other, you can use a vector.
+
+```{r}
+month_info[c(1, 3), ]
+```
+
+## EXERCISE
+
+Using the Northwestern degree data set from above: select rows 2 through 5, and columns 1 through 2
+
+```{r}
+
+```
+
+Challenge: look up the `seq()` function in the Help. Use it to select every other row from the degree data.
+
+```{r}
+
+```
+
+## Indexing by Names
+
+We've seen that we can reference columns by name with `$` notation (no quotes on names)
+
+```{r}
+names(month_info)
+
+month_info$days
+```
+
+Note that the `$` notation got us a vector back.
+
+```{r}
+month_info$days
+```
+
+Use names in `[]`: put them in quotes
+
+```{r}
+month_info[,"days"]
+```
+
+With penguins (tibble), it stays as a tibble:
+
+```{r}
+penguins[,"bill_length_mm"]
+```
+
+Multiple columns by name, need to use a vector of names:
+
+```{r}
+month_info[,c("month", "days")]
+```
+
+## Boolean/Conditional Selection
+
+If we have a boolean vector (`TRUE` and `FALSE` values) that is the same length as the number of rows or columns, we can use it to select data.
+
+First, with a vector:
+
+```{r}
+month_info$days[c(TRUE, FALSE,  TRUE, FALSE,
+                  TRUE, FALSE,  TRUE,  TRUE,
+                  FALSE,  TRUE, FALSE,  TRUE)]
+
+month_info$days == 31
+
+month_info$days[month_info$days == 31]
+
+month_info$month[month_info$days == 31]  # can index a different vector
+
+month_info$month[month_info$days != 31]
+```
+
+Now, with a data frame, we typically want to use boolean expressions to choose the ROWS (not the columns) because we want to select which particular observations meet some criteria.
+
+Start with the criteria we want:
+
+```{r}
+penguins$bill_length_mm < 34
+```
+
+Hmmm - there's some missing values in there (NA) - we'll come back to that in a minute.
+
+Select the **rows** (all columns) where bill length is less than 34:
+
+```{r}
+penguins[penguins$bill_length_mm < 34,]
+```
+
+If I forget the `,` in the `[]`:
+
+```{r, eval=FALSE}
+penguins[penguins$bill_length_mm < 34]
+```
+
+It tries to index the columns instead, and our vector is too long.
+
+Multiple conditions
+
+```{r}
+penguins[penguins$bill_length_mm < 34 & penguins$bill_depth_mm < 16,]
+```
+
+```{r}
+penguins[penguins$bill_length_mm < 34 | penguins$bill_length_mm > 58,]
+```
+
+## EXERCISE
+
+Which years were more than 600 doctoral degrees awarded? You might want to break this down into two steps: 1) write an expression for determining whether there were more than 600 doctoral degrees, then 2) use that expression to index the correct column of your degrees data.
+
+```{r}
+
+```
+
+Challenge:
+
+```{r}
+
+```
+
+# Missing Values
+
+`NA` is the symbol for missing data; it can be used with any data type
+
+```{r}
+NA  
+y <- c("dog", "cat", NA, NA, "bird")
+x <- c(NA, 2, NA, 4, NA, 6, NA, 6, 6, 4)
+
+is.na(x)  
+```
+
+A common operation is to count how many missing values there are in a vector. We use the function `is.na()` to get TRUE when the value is `NA` and FALSE otherwise. Then we sum that result; this works because TRUE converts to 1 and FALSE converts to 0. So it counts the number of missing values (the number of TRUEs).
+
+```{r}
+sum(c(TRUE, FALSE))
+sum(is.na(x))  
+```
+
+Different functions handle missing values in different ways. Most commonly, you'll get an answer of `NA` unless you tell the function to remove or exclude the missing values in the calculation.
+
+```{r}
+mean(x)
+mean(x, na.rm=TRUE)
+```
+
+If we don't want the missing rows included in our results above when we were selecting rows of penguins:
+
+```{r}
+is.na(penguins$bill_length_mm)
+!is.na(penguins$bill_length_mm)  # ! is not
+
+penguins[!is.na(penguins$bill_length_mm) & penguins$bill_length_mm < 34,]
+```
+
+The function `complete.cases()` can be used to find which rows have no missing values at all:
+
+```{r}
+complete.cases(penguins)
+
+penguins[complete.cases(penguins),] ## effectively drops rows with any missing values
+```
+
+## EXERCISE
+
+How many missing values in penguins\$bill_depth_mm?
+
+What is the mean of the non-missing values of penguins\$bill_depth_mm?
+
+```{r}
+
+```
+
+Challenge: Select the rows from penguins where penguins\$bill_depth_mm is missing.
+
+```{r}
+
+```
+
+Challenge: What is the mean of non-missing values of penguins\$bill_depth_mm for penguins of species Gentoo?
+
+```{r}
+
+```
+
+# Column Names
+
+## Fixing Bad Names on Import
+
+What if the variable/column names in your dataset have spaces, start with numbers, or are otherwise not names that you can use with R?
+
+```{r}
+bad_data <- read.csv("data/annoying.csv")
+bad_data
+```
+
+Use readr package read_csv function to preserve the original names or set the check.names option in read.csv to FALSE.
+
+```{r}
+library(readr)
+bad_data <- read_csv("data/annoying.csv")
+bad_data
+
+# or
+bad_data <- read.csv("data/annoying.csv", check.names=FALSE)
+bad_data
+```
+
+Then use back ticks around the names, or use the clean_names function from the janitor package to clean them up
+
+```{r, eval=FALSE}
+bad_data$2022
+```
+
+```{r}
+bad_data$`2022`
+```
+
+```{r}
+library(janitor)
+bad_data <- clean_names(bad_data)
+bad_data
+bad_data$x2022
+```
+
+## Renaming Columns
+
+Normally we don't need to do this step below, but I want to keep the current names so I can reset the names later
+
+```{r}
+oldnames <- names(penguins)  # save so we can reset later
+```
+
+Just like we use `names()` to get the names, use the same function to assign the names. This is different syntax than we see other places in R; `names()` is a special type of function called a replacement function.
+
+I can change the name of the first variable with:
+
+```{r}
+names(penguins)[1]
+names(penguins)[1] <- "boo"  # change the name of the first column
+names(penguins)
+head(penguins)
+```
+
+```{r}
+names(penguins) <- c("a", "b", "c", "d", "e", "f", "g", "h")  # change all of the column names
+head(penguins)
+```
+
+Put the old names back
+
+```{r}
+names(penguins) <- oldnames
+head(penguins)  # check
+```
+
+# Making new variables
+
+We can add a new variable to the data frame by naming it with the `$` notation, and assigning a value to it. For example, make a variable that has bill length in **centimeters (cm)** instead of **millimeters (mm)**
+
+```{r}
+penguins$bill_length_cm <- penguins$bill_length_mm / 10  # make new variable: note CM instead of MM in the name
+names(penguins)  # check to see that it was added
+penguins[, c("bill_length_cm", "bill_length_mm")]  # select the two vars to view them
+```
+
+Variables will be added to the end (right). We usually don't bother to reorder the variables, but we can by selecting them in the order we want:
+
+```{r}
+penguins <- penguins[, c("species", "island", "sex", "year",
+                         "bill_length_mm", "bill_length_cm",
+                         "bill_depth_mm", "flipper_length_mm", "body_mass_g")]
+
+names(penguins)
+```
+
+## EXERCISE
+
+Using `month_info`: make a new variable as part of `month_info`, called `weeks`, that is the number of days divided by 7.
+
+```{r}
+
+
+```
+
+Make a new column in the degrees data with the total number of degrees awarded each year
+
+```{r}
+
+```
+
+Challenge: Make a new logical column called `long_month` that is TRUE if the month has 31 days
+
+```{r}
+
+```
+
+# Dropping Variables
+
+To remove a variable from a data frame, we select the data we want to keep, and then save that back to the same variable:
+
+```{r}
+month_info
+
+month_info[, 1:3]
+
+month_info <- month_info[, 1:3]
+```
+
+Or with names:
+
+```{r}
+names(penguins)
+penguins <- penguins[, c("species", "island", "sex", "year",
+                         "bill_length_mm", "bill_depth_mm", 
+                         "flipper_length_mm", "body_mass_g")]
+names(penguins)
+```
+
+# Replacing Values
+
+How do we change our data? A common task might be replacing missing values -- either actual NA values or other values that indicate missing.
+
+First, we identify and select the values we want to change:
+
+```{r}
+penguins$bill_depth_mm[is.na(penguins$bill_depth_mm)]
+```
+
+Let's compute the average value to replace it with
+
+```{r}
+bill_depth_mean <- mean(penguins$bill_depth_mm, na.rm=TRUE)
+bill_depth_mean
+
+```
+
+Now, assign a new value to the observations we want to change
+
+```{r}
+penguins$bill_depth_mm[is.na(penguins$bill_depth_mm)] <- bill_depth_mean
+
+sum(is.na(penguins$bill_depth_mm))
+```
+
+It doesn't have to be missing values, and we could use a function:
+
+```{r}
+substr(month_info$month, 1, 3)
+
+month_info$month <- substr(month_info$month, 1, 3)
+```
+
+## EXERCISE
+
+Here is code to make a new data frame. Run the code and take a look at the data frame
+
+```{r}
+some_numbers <- data.frame(v1 = rnorm(10), v2 = runif(10))
+```
+
+Replace all values of v1 that are below 0 with the value 0
+
+```{r}
+
+```
+
+# Building Up Expressions
+
+What if we want to select observations with more complicated criteria?
+
+Which penguins are the heaviest?
+
+Let's build this up together...
+
+```{r}
+
+
+```
+
+What proportion of Adelie penguins have above average flipper length?
+
+```{r}
+
+```
+
+# PRACTICE SET 1
+
+Set 1 exercises use the policing data here:
+
+```{r}
+evp <- read.csv("data/ev_police_jan.csv")
+```
+
+If you mess up the data frame, you can always read it back in from the file.
+
+## EXERCISE 1
+
+What are the variable names, and how many observations are there?
+
+```{r}
+
+```
+
+## EXERCISE 2
+
+Are there any missing values in the data?
+
+There are a few ways you might approach this
+
+```{r}
+
+```
+
+## EXERCISE 3
+
+What is the most common location? You may want to use the `table()` function.
+
+Hint: you can use the `sort()` function in combination with the `table()` function: `sort(table(x))`
+
+```{r}
+
+```
+
+## EXERCISE 4
+
+How many stops found contraband?
+
+Hint (for one approach to this): if you `sum()` a boolean variable, TRUE = 1, FALSE = 0, so it counts the TRUE values. Remember to deal with missing values with `sum()`: `sum(x, na.rm=TRUE)`. You could also make a table.
+
+```{r}
+
+```
+
+What proportion of all stops in the data found contraband?
+
+```{r}
+
+```
+
+## EXERCISE 5
+
+Rename the column "raw_row_number" to "id"
+
+```{r}
+
+```
+
+## EXERCISE 6
+
+Subset the data frame to just have rows where subject_sex is "female" and save the result in a new variable.
+
+```{r}
+
+```
+
+## EXERCISE 7
+
+Make a new column in the data frame called evanston that is TRUE if the location is 60201 or 60202 and FALSE otherwise.
+
+```{r}
+
+```
+
+## EXERCISE 8
+
+This exercise is more challenging than the others.
+
+What is the *make* of the oldest vehicles in the data set.
+
+Hint: there are two observations in the data that both have the minimum vehicle_year.
+
+```{r}
+
+```
+
+## EXERCISE 9
+
+This exercise is more challenging than the others.
+
+What percentage of men in the dataset drive a Toyota ("TOYT")? How does this compare to the percentage of women who drive a Toyota?
+
+What percentage of Toyota drivers are male? What percentage of drivers in the data set are male?
+
+```{r}
+
+```
+
+# Compute by Group
+
+We learned how to subset our data frame, so if we want to compute a measure by group in our data, we could do it on subsets.
+
+```{r}
+table(penguins$species)
+
+mean(penguins$bill_length_mm[penguins$species == "Adelie"], na.rm=TRUE)
+mean(penguins$bill_length_mm[penguins$species == "Chinstrap"], na.rm=TRUE)
+mean(penguins$bill_length_mm[penguins$species == "gentoo"], na.rm=TRUE)  # changed the value above
+```
+
+But there are functions in R that will help us aggregate our data by categorical variables and compute summary measures.
+
+First, `tapply`, which applies a function to a vector grouped by a second vector.
+
+```{r, eval=FALSE}
+tapply(vector to compute on, 
+       vector with groups, 
+       name of the function, 
+       optionally any arguments to the function besides the data vector)
+```
+
+```{r}
+tapply(penguins$bill_length_mm,   # vector to compute on
+       penguins$species,  # vector with groups
+       mean,  # name of the function
+       na.rm = TRUE)  # optionally any arguments to the function besides the data vector
+```
+
+We can group by two different grouping variables by combining them in a list. Lists can hold objects of different types or the same type. For now, since we haven't covered lists, just know that this is the syntax to group by two different groups.
+
+```{r}
+tapply(penguins$bill_length_mm,   # vector to compute on
+       list(penguins$species, penguins$island),  # vector with groups
+       mean,  # name of the function
+       na.rm = TRUE)  # optionally any arguments to the function besides the data vector
+```
+
+Why are there still `NA` in the output if we removed missing values when computing the mean? Because there are no observations with those combinations of variables in the data -- no [Gentoo penguins](https://en.wikipedia.org/wiki/Gentoo_penguin) on [Dream island](https://en.wikipedia.org/wiki/Dream_Island) in our data.
+
+`aggregate()` is similar to `tapply` but produces output in a different format
+
+```{r}
+aggregate(penguins$bill_length_mm,  # data to compute on
+          list(penguins$species, penguins$island),  # groups: it expects a list here
+          mean,  # function
+          na.rm=TRUE)   # additional arguments to the function
+```
+
+We could also use the formula syntax, which we'll learn more about on day 3. This approach gives us better names in the resulting data frame. It wants `variable ~ group1` or `variable ~ group1 + group2`, with `data` specified. Because we tell it what data frame to use (`data = pengiuns`), we can reference the column names alone. The formula syntax then knows where to find those columns.
+
+```{r}
+aggregate(bill_length_mm ~ species + island,
+          data = penguins,
+          mean,
+          na.rm=TRUE)
+```
+
+## EXERCISE
+
+Compute group means of `body_mass_g` by `sex` with `tapply()` and `aggregate()`.
+
+Use `tapply()`
+
+```{r}
+
+
+```
+
+Use `aggregate()`
+
+```{r}
+
+
+```
+
+# PRACTICE SET 2
+
+These exercises are more challenging than the ones above and most require multiple steps to complete. Try to break each problem down into smaller steps.
+
+These exercises use this data set, which is data on Northwestern doctoral degrees by program/department and year:
+
+```{r}
+phds <- read.csv("data/doctorates_clean.csv")
+```
+
+This data is in what we call long format -- there is one row (observation) per department-year
+
+## EXERCISE 1
+
+View() the data, and look at the column names and column types. How many rows and columns?
+
+```{r}
+
+```
+
+## EXERCISE 2
+
+Select programs/degrees where it's not a PhD (use the phd indicator column). These are other types of doctorate degrees.
+
+Challenge: use the unique() function to get a vector that has each program in the list only once.
+
+```{r}
+
+```
+
+## EXERCISE 3
+
+Select data just for 2021-22. Which program awarded the most degrees?
+
+```{r}
+
+```
+
+## EXERCISE 4
+
+How many different programs awarded at least one degree in 2021-22?
+
+```{r}
+
+```
+
+## EXERCISE 5
+
+Compute the total number of degrees awarded each year.
+
+```{r}
+
+```
+
+## EXERCISE 6
+
+Compute the total number of degrees awarded in 2021-22 by school.
+
+```{r}
+
+```
+
+## EXERCISE 7
+
+Are there any programs who awarded no degrees during the time period covered by the data set?
+
+```{r}
+
+```
+
+## EXERCISE 8
+
+Which school had the greatest increase in the number of degrees awarded between 2010-11 and 2021-22?
+
+```{r}
+
+```
