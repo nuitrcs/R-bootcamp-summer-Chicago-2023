@@ -1,0 +1,478 @@
+---
+output:
+  html_document:
+    df_print: paged
+    code_download: TRUE
+    toc: true
+    toc_depth: 1
+editor_options:
+  chunk_output_type: console
+---
+
+# Data Wrangling
+
+... or put differently, welcome to the real world. Real datasets are seldom as tidy and clean as those you have been working with so far. Real data is messy and often you'll need to clean and coerce it into the right format in order to actually analyze it. This session contains a number of examples that serve as cookbook recipes for common data wrangling tasks.
+
+## Using the R Help
+
+One of the most important features that you will need as you start on your path to becoming and R user is getting help. No matter how skilled of a programmer you are, you always encounter new functions and need help understanding how to use them. We will take some time to explore the help features in R.
+
+To get online help within an R session we use the `help()` function. This will allow us to see the documentation on a function that we are interested in.
+
+Let's say we want to import a csv file and we know we need to use the `read.csv` function:
+
+```{r}
+help(read.csv)
+```
+
+You can get help with the `?` function:
+
+```{r}
+?read.csv
+```
+
+Many times we just need to see some examples rather than read the entire documentation of a function or command. In this situation we would use the `example()` function. Consider below where we might be interested in some perspective plots. When you enter this into RStudio you will see some of the beautiful graphics that R can do:
+
+```{r}
+example(persp)
+```
+
+The Run Examples hyperlink at the bottom of the function documentation is generally the quickest way to understand different use cases.
+
+Aside from these areas of help another method is to search the internet for further help. Here are some other resources:
+
+-   [The Comprehensive R Archive Network](https://cran.r-project.org/)
+
+-   [UCLA Statistical Computing Help Site](http://www.ats.ucla.edu/stat/r/)
+
+-   [Google Search Site](http://statseducation.com/Introduction-to-R/modules/getting%20started/help/www.google.com)
+
+-   [Github](http://statseducation.com/Introduction-to-R/modules/getting%20started/help/www.github.com)
+
+-   [StackExchange](http://stackexchange.com/)
+
+### EXERCISE
+
+Look up the documentation for `lm` . What does this function do? Can you run some examples of this function? What inputs does it take? What outputs does it return?
+
+```{r}
+
+```
+
+## Useful functions
+
+This section will list several basic R functions that are very useful and should be part of your toolbox.
+
+### ifelse
+
+`ifelse()` allows you to change the values of a vector based on a conditional test. It's useful for recoding data, and you can use it in situations where you don't want to change the underlying data.
+
+The format is:
+
+```{r}
+ifelse(test_condition, value_if_true, value_if_false)
+```
+
+where the test condition is usually some comparison or operation on a vector - anything that results in TRUE or FALSE values
+
+```{r}
+x <- c(-1, 2, 3, -5, 3, NA, -4, 6)
+x >= 0
+
+ifelse(x >= 0, x, 0)  # keep positive (>= 0) values as they are, replace others with 0
+
+ifelse(is.na(x), 0, x)  # replace missing values with 0, leave others alone
+
+ifelse(x %% 2 == 0, "even", "odd")  ## remainder of dividing x by 2 is 0 
+```
+
+`ifelse()` looks at each value in the initial TRUE/FALSE vector, and it decides what the value at each position should then be.
+
+%% is an operator that returns the value left after dividing by an integer -- the remainder
+
+```{r}
+4 %% 2
+7 %% 2
+
+x %% 2
+
+ifelse(x %% 2 == 0, "even", "odd")  ## remainder of dividing x by 2 is 0 
+```
+
+There's also the useful `replace_na()` function in the tidyr package and `na_if()` in dplyr.
+
+```{r}
+library(tidyr)
+library(dplyr)
+
+replace_na(x, 0) # replace NA with 0
+
+y <- c("abc", "def", "", "ghi") # remove an empty string
+na_if(y, "")
+
+na_if(1:5, 5:1) # when x == y, replace the value in x with NA
+```
+
+### EXERCISE
+
+Where the value in the vector below is positive, take the square root. Where it is negative, substitute in `NA`.
+
+```{r}
+y <- c(4, -1, 3, 6, -7, 10, 20)
+```
+
+### EXERCISE
+
+Recode the vector below such that values at or above the average are replaced with "tall" and values below average are replaced with "short"
+
+Remember: break this into parts. Start with computing the mean of x, then use that in an expression to determine which values of x are above that mean
+
+```{r}
+y <- c(4, 6, 5, 7, 3, 6, 4, 5, 3, 6, 6, 5, 6, 7, 6, 4, 6, 5, 7, 5)
+```
+
+### %in%
+
+`%in%` returns TRUE if the value on the left is in the vector on the right, FALSE otherwise. Unlike `==`, if the value on the left is `NA`, it will return FALSE unless `NA` is also in the vector on the right:
+
+```{r}
+x <- c(-1, 2, 3, -5, 3, NA, -4, 6)
+x %in% c(1, 2, 3)
+x == 1 | x == 2 | x == 3
+```
+
+```{r}
+state.name  # built-in vector in R
+
+ifelse(state.name %in% c("Alaska", "Hawaii"), NA, state.name)
+```
+
+Let's use it with some data:
+
+```{r}
+evp <- read.csv("data/ev_police_jan.csv")
+```
+
+We could use it to subset data - get the rows where the location is an Evanston zip code
+
+```{r}
+evp[evp$location %in% c(60201, 60202), ]
+```
+
+Or make a new column called `evanston` if the location is one of the two main Evanston zip codes of 60201 or 60202
+
+```{r}
+evp$evanston <- evp$location %in% c(60201, 60202)
+table(evp$evanston)
+```
+
+### EXERCISE
+
+Select the rows from the `evp` data below where the vehicle make is one of FIAT, DATS, GEO, JAGU, or PEUG
+
+```{r}
+evp <- read.csv("data/ev_police_jan.csv")
+View(evp)
+
+```
+
+### paste
+
+The `paste()` function is used to join pieces of text:
+
+```{r}
+paste("John", "Oliver")
+```
+
+The default separator between the strings is a space, but you can change it:
+
+```{r}
+paste("John", "Oliver", sep="---")
+```
+
+But, I frequently want to join strings with no space between them:
+
+```{r}
+paste("John", "Oliver", sep="")
+```
+
+There's a shortcut for this:
+
+```{r}
+paste0("John", "Oliver")
+```
+
+You can also paste the elements of two or more vectors together:
+
+```{r}
+first_names <- c("John", "Kate", "Tyler", "Jordan")
+last_names <- c("Lee", "Sharma", "Smith", "Rodriguez")
+
+paste(first_names, last_names, sep=" ")
+```
+
+If you provide a vector of characters, you can also use the `collapse` argument, which places whatever you provide for `collapse` between the characters of the vector:
+
+```{r}
+state.name[1:5] # built-n vector state.name, using the first 5 values
+
+paste0(state.name[1:5], collapse = ", and ")
+paste0(state.name[1:5], sep = ", and ") # will not work as intended
+```
+
+### EXERCISE
+
+`state.abb` has two-letter abbreviations for US states. `state.region` has the region for each US state. Use `paste()` to join the info from these two vectors together, so the output has entries that look like:
+
+```         
+"AL: South"         "AK: West"          "AZ: West"          "AR: South"  ...
+```
+
+```{r}
+
+```
+
+### seq and seq_along
+
+`seq()` is used to generate sequences of numbers. You can specify the interval between values or how many values you want.
+
+```{r}
+seq(from=1, to=10, by=2)
+```
+
+Note that the sequence output will only have values that are \<= the "to" value.
+
+```{r}
+seq(0, 10, length.out=4)
+```
+
+```{r}
+seq(0, 1, .1)
+```
+
+`seq_along()` behaves similarly, but returns a sequence starting from 1 to the length of the object passed to it.
+
+```{r}
+seq_along(c(-1, 3, 56, -90))
+```
+
+### EXERCISE
+
+Use the `seq()` function to select every 5th row from `state.x77` (it's a matrix built in to R - you can index it like a data frame).
+
+Things you need to figure out: how do you know what the sequence should go to? How do you use the result of seq() to then select the rows?
+
+```{r}
+
+```
+
+### Piping with `|>`
+
+Pipes are a powerful tool for clearly expressing a sequence of multiple operations. You will learn more about them in the Tidyverse workshop, however R 4.1.0 introduced a native pipe operator `|>`. By default, the pipe passes the object on its left-hand side to the first argument of the function on the right-hand side.
+
+```{r}
+evp <- read.csv("data/ev_police_jan.csv")
+```
+
+```{r}
+evp |> names()
+
+# equivalent to
+names(evp)
+```
+
+```{r}
+evp |> dim()
+```
+
+You can chain multiple operations together with pipes
+
+```{r}
+evp$location |> table() |> sort()
+```
+
+### EXERCISE
+
+Rewrite these commands using the `|>` operator instead of nested function calls:
+
+```         
+unique(evp$vehicle_make)
+sort(unique(evp$vehicle_make))
+```
+
+```{r}
+
+```
+
+## Changing data types
+
+Previously, you discovered that R implicitly coerces variables into other data types when needed. For instance, if you add a `numeric` to a `logical`, the result is a `numeric`. And if you place them together in a vector, the vector will contain two `numeric` values. Alternatively, if you add a `numeric` to a `character`, the operation fails. If you put them together in a vector, both become `character` strings:
+
+```{r}
+TRUE + 5
+v1 <- c(TRUE, 5)
+v1
+
+"One" + 5
+v2 <- c("One", 5)
+v2
+```
+
+There is a hierarchy for data types in R: `logical` \< `integer` \< `numeric` \< `character`.
+
+When variables of different types are somehow combined (with addition, put in the same vector, and so on), R will coerce both to the higher ranking type. That is why `v1` contained `numeric` variables (`numeric` is higher ranked than `logical`) and `v2` contained `character` values (`character` is higher ranked than `numeric`).
+
+Automatic coercion is often useful, but will sometimes cause problems. As an example, a vector of numbers may accidentally be converted to a `character` vector, which will confuse plotting functions. Luckily it is possible to convert objects to other data types. The functions most commonly used for this are `as.logical`, `as.numeric` and `as.character`. Here are some examples of how they can be used:
+
+```{r}
+as.logical(1)           # Should be TRUE
+as.logical("FALSE")     # Should be FALSE
+as.numeric(TRUE)        # Should be 1
+as.numeric("2.718282")  # Should be numeric 2.718282
+as.character(2.718282)  # Should be the string "2.718282"
+as.character(TRUE)      # Should be the string "TRUE"
+```
+
+A word of warning though - conversion only works if R can find a natural conversion between the types. Here are some examples where conversion fails. Note that only some of them cause warning messages:
+
+```{r}
+as.numeric("two")                   # Should be 2
+as.numeric("1+1")                   # Should be 2
+as.numeric("2,718282")              # Should be numeric 2.718282
+as.logical("Vaccines cause autism") # Should be FALSE
+```
+
+### EXERCISE
+
+-   What happens if you apply `as.logical` to the `numeric` values 0 and 1? What happens if you apply it to other numbers?
+
+-   What happens if you apply `as.character` to a vector containing `numeric` values?
+
+-   The functions `is.logical`, `is.numeric` and `is.character` can be used to check if a variable is a `logical`, `numeric` or `character`, respectively. What type of object do they return?
+
+```{r}
+
+```
+
+## Factors
+
+Factors are variables with text labels, but the set of values (called levels) that are allowed for the variable is limited, and the values optionally can have a specific order to them. Categorical data is stored in R as `factor` variables. You may ask why a special data structure is needed for categorical data, when we could just use `character` variables to represent the categories.
+
+Let's say that you've conducted a survey on students' smoking habits. The possible responses are *Never*, *Occasionally*, *Regularly* and *Heavy*. From 10 students, you get the following responses:
+
+```{r}
+smoke <- c("Never", "Never", "Heavy", "Never", "Occasionally",
+           "Never", "Never", "Regularly", "Regularly", "No")
+```
+
+Note that the last answer is invalid - `No` was not one of the four answers that were allowed for the question. You could use `table` to get a summary of how many answers of each type that you got:
+
+```{r}
+table(smoke)
+```
+
+But the categories are not presented in the correct order! There is a clear order between the different categories, *Never* \< *Occasionally* \< *Regularly* \< *Heavy*, but `table` doesn't present the results in that way. Moreover, R didn't recognise that `No` was an invalid answer, and treats it just the same as the other categories. This is where `factor` variables come in. They allow you to specify which values your variable can take, and the ordering between them (if any).
+
+### Creating Factors
+
+When creating a `factor` variable, you typically start with a `character`, `numeric` or `logical` variable, the values of which are turned into categories. To turn the `smoke` vector that you created in the previous section into a `factor`, you can use the `factor` function:
+
+```{r}
+smoke2 <- factor(smoke)
+```
+
+You can inspect the elements, and *levels*, i.e. values that the categorical variable takes, as follows:
+
+```{r}
+levels(smoke2)
+```
+
+So far, we haven't solved neither the problem of the categories being in the wrong order nor that invalid `No` value. To fix both these problems, we can use the `levels` argument in `factor`:
+
+```{r}
+smoke2 <- factor(smoke, levels = c("Never", "Occasionally", "Regularly", "Heavy"),
+                        ordered = TRUE)
+
+# Check the results:
+smoke2
+levels(smoke2)
+table(smoke2)
+```
+
+You can control the order in which the levels are presented by choosing which order we write them in in the `levels` argument. The `ordered = TRUE` argument specifies that the order of the variables is *meaningful*.
+
+It can be excluded in cases where you wish to specify the order in which the categories should be presented purely for presentation purposes (e.g. when specifying whether to use the order `Male/Female/Other` or `Female/Male/Other`). Also note that the `No` answer now became an `NA`, which in the case of `factor` variables represents both missing observations and invalid observations. To find the values of `smoke` that became `NA` in `smoke2` you can use `which` and `is.na`:
+
+```{r}
+smoke[which(is.na(smoke2))]
+```
+
+By checking the original values of the `NA` elements, you can see if they should be excluded from the analysis or recoded into a proper category (`No` could for instance be recoded into `Never`).
+
+### Changing factor levels
+
+When we created `smoke2`, one of the elements became an `NA`. `NA` was however not included as a level of the `factor`. Sometimes it is desirable to include `NA` as a level, for instance when you want to analyse rows with missing data. This is easily done using the `addNA` function:
+
+```{r}
+smoke2 <- addNA(smoke2)
+```
+
+If you wish to change the name of one or more of the `factor` levels, you can do it directly via the `levels` function. For instance, we can change the name of the `NA` category, which is the 5th level of `smoke2`, as follows:
+
+```{r}
+levels(smoke2)[5] <- "Invalid answer"
+```
+
+Finally, if you've added more levels than what are actually used, these can be dropped using the `droplevels` function:
+
+```{r}
+smoke2 <- factor(smoke, levels = c("Never","Occasionally","Regularly","Heavy","Constantly"),
+                        ordered = TRUE)
+levels(smoke2)
+smoke2 <- droplevels(smoke2)
+levels(smoke2)
+```
+
+### Changing the order of levels
+
+Now suppose that we'd like the levels of the `smoke2` variable to be presented in the reverse order: *Heavy*, *Regularly*, *Occasionally*, and *Never*. This can be done by a new call to `factor`, where the new level order is specified in the `levels` argument:
+
+```{r}
+smoke2 <- factor(smoke2, levels = c("Heavy", "Regularly", "Occasionally", "Never"))
+
+# Check the results:
+levels(smoke2)
+```
+
+### Combining levels
+
+Finally, `levels` can be used to merge categories by replacing their separate names with a single name. For instance, we can combine the smoking categories *Occasionally*, *Regularly*, and *Heavy* to a single category named *Yes*. Assuming that these are first, second and third in the list of names (as will be the case if you've run the last code chunk above), here's how to do it:
+
+```{r}
+levels(smoke2)[1:3] <- "Yes"
+levels(smoke2)
+```
+
+### EXERCISE
+
+Convert the vector below to a factor. Set the levels in an intentional order.
+
+```{r}
+directions <- c("east", "west", "east", "south", "north", "north", "west", "north", "east")
+```
+
+### EXERCISE
+
+Using the `evp` dataset, and convert the columns `subject_race` and `subject_sex` into factors.
+
+```{r}
+
+```
+
+### EXERCISE
+
+Using the `evp` dataset, convert the column `search_basis` to a factor. Then recode all `NA` values into "invalid".
+
+```{r}
+
+```
