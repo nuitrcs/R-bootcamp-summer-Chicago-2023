@@ -15,13 +15,66 @@ knitr::opts_chunk$set(
 )
 ```
 
-# This File
+# R: Tools of the Trade
 
-This is an R Markdown file. The code in the gray chunks surrounded by \`\`\` is R code that you can run. There's a green triangle you can click to run all of the code in a chunk, or put your cursor in a line and press Command+Enter (Mac) or Control+Enter (PC) to execute that command (which can span multiple lines).
+Welcome to the R Bootcamp! In this section, we're going to cover some fundamental R tools such as:
 
-We're using R Markdown instead of a R script so that we can include additional text and explanation in the file. In an .R script, everything has to be an R command or comment. Here, between chunks of R code, we can include text and other information.
+-   RStudio
+-   The R console
+-   File paths
+-   Working directory
+-   RStudio Projects
+-   Code scripts and R Documents
 
-## Console Tips
+## RStudio panel layout
+
+The RStudio user interface has 4 primary panes:
+
+-   **Source** pane
+
+-   **Console** pane
+
+-   **Environment** pane, containing the **Environment**, **History**, **Connections**, and **Tutorial** tabs
+
+-   **Output** pane, containing the **Files**, **Plots**, **Packages**, **Help**, **Viewer**, and **Presentation** tabs
+
+Each pane can be minimized or maximized within the column by clicking the minimize/maximize buttons ![The min-max button which shows a collapsed or expanded Window.](https://docs.posit.co/ide/user/ide/guide/ui/images/min-max.png){alt="The min-max button which shows a collapsed or expanded Window." width="25" height="14"}.
+
+![](images/rstudio-panes-labeled.jpeg)
+
+## Console and R Commands
+
+We can type basic math equations in the console. Click Run Code to give it a try.
+
+```{r}
+2+2
+3^2
+(2+3)/(5+7)
+```
+
+```{r}
+
+```
+
+We can also do Boolean comparisons -- expressions that result in TRUE or FALSE
+
+-   == for testing equality
+-   ! means NOT
+-   & is AND, \| is OR
+
+```{r}
+3 > 2
+5 == 25/5
+"cat" != "dog"
+!TRUE
+```
+
+```{r}
+TRUE & FALSE
+TRUE | FALSE
+```
+
+### Console Tips
 
 -   There's a space after the prompt (`>`)
 -   If you see a `+` instead of a `>`, R thinks the previous command wasn't finished and expects more input
@@ -29,6 +82,116 @@ We're using R Markdown instead of a R script so that we can include additional t
 -   Use the up and down arrow keys to cycle through previous commands
     -   List of previous commands is in the History tab in RStudio (with the Environment tab)
 -   Output starts with `[1]`; this number indexes the output values, since there can be more than one value as output
+
+### EXERCISE
+
+Type some math equations in the console. Lacking inspiration? What's the square root of 394, minus 5, cubed?
+
+```{r}
+
+
+```
+
+## File paths
+
+-   You can use the Files tab to access the files on your computer
+-   **Absolute paths** always start with the root directory and provide the full path to the file or directory. For example, the absolute path to the home directory of a user named "ritika" would be "/home/ritika".
+-   On the other hand, a **relative path** is a path to a file or directory that is relative to the current directory.
+
+## Working directory
+
+Working directory: Where R starts looking for files on your computer.
+
+You can set it or go to it in the Files pane (under the More menu), or with functions.
+
+```{r}
+getwd()
+setwd("r-bootcamp/")  # this is an example -- file path needs to be valid
+```
+
+Whenever you refer to a file with a *relative path* it will look for it in the working directory.
+
+### EXERCISE
+
+Set the working directory for your RStudio session to `R-bootcamp-summer-Chicago-2023`. Use either a console command or the GUI options.
+
+```{r}
+
+```
+
+## RStudio Projects
+
+R experts keep all the files associated with a project together --- input data, R scripts, analytical results, figures. This is such a wise and common practice that RStudio has built-in support for this via **projects**.
+
+To make a project you would click File \> New Project, then follow the prompts. For this workshop, we have already created a Project for you. Double clicking on the **.RProj** file automatically opens up the project and associated documents in the correct working directory.
+
+### EXERCISE
+
+Check that you are currently working within the `R-bootcamp-summer-Chicago-2023` Project. If not, open the relevant .RProj file in a new RStudio session.
+
+```{r}
+
+```
+
+## Code scripts and R Document files
+
+This is an R Quarto file. It is very similar to an R Markdown file if you've used those before. There are two view modes for this file - Source and Visual. The code in the gray chunks (surrounded by \`\`\` in Source view) is R code that you can run. There's a green triangle you can click to run all of the code in a chunk, or put your cursor in a line and press Command+Enter (Mac) or Control+Enter (PC) to execute that command (which can span multiple lines).
+
+We're using an R Quarto Document instead of an R script so that we can include additional text and explanation in the file. In an .R script, everything has to be an R command or comment. Here, between chunks of R code, we can include text and other information.
+
+# Functions and Variables
+
+## Functions
+
+Functions have a name. They optionally take one or more input values (arguments). They optionally return a value (or a more complicated object) or have a side effect (do something).
+
+Examples: `log`, `round`
+
+You can nest function calls:
+
+```{r}
+log(16)
+round(2.12345)
+round(log(16))
+```
+
+How do you learn function names? See the [R Reference Card](https://cran.r-project.org/doc/contrib/Baggott-refcard-v2.pdf) for some basics. Otherwise, look at the documentation for the packages you're using, or tutorials for the type of analysis you want to do.
+
+The inputs or arguments to a function have names. When we don't use the name, like above, it matches the values in order. But we can always use the argument name:
+
+```{r}
+round(3.1415, digits=2)
+```
+
+You can find the argument names in the Help or documentation page for the function. We'll look at these soon.
+
+## Variables
+
+We save and reference individual values, or more complex objects like vectors and data sets, with variables. We assign values to a name.
+
+```{r}
+x <- 3
+```
+
+```{r}
+x = 3
+```
+
+The `<-` assignment operator is recommended for clarity. `=` also works, but because we use `=` for named arguments when we call functions, it can be confusing.
+
+You can see the value of a variable by typing the name in the console and hitting enter. A variable name by itself is a valid R command.
+
+Variable names are case sensitive. `X` and `x` are different names.
+
+Everything on the right-hand side of an assignment operator is evaluated first, then the result is saved to the name on the left:
+
+```{r}
+x <- x + 1
+```
+
+When we make variables, they show up in the **Environment** tab of RStudio. The Environment tab has the variables and objects that you create, so you can check there to verify what R knows about).
+
+Data sets, variables, and objects in R are held in memory. This means that the data size limits of R are based on the limits of RAM on the computer you are using. On most relatively recent laptops, you generally won't have an issue until your datasets start to approach around 1GB in size.
 
 # Packages
 
@@ -209,15 +372,15 @@ month_info$days/7
 
 ## EXERCISE
 
-Import data from "data/nu_degrees.csv" - save it in a variable (choose an appropriate name).
+Import data from `"data/nu_degrees.csv"` - save it in a variable (choose an appropriate name).
 
 Look at the data.
 
-What is the average (the function is mean()) number of bachelor's degrees issued in a year?
+What is the average (the function is `mean()`) number of bachelor's degrees issued in a year?
 
-What is the standard deviation in the number of doctoral degrees issued each year? The function is sd()
+What is the standard deviation in the number of doctoral degrees issued each year? The function is `sd()`
 
-How many total masters degrees were issued for the years in the data? Hint: sum()
+How many total masters degrees were issued for the years in the data? Hint: `sum()`
 
 ```{r}
 
@@ -236,7 +399,7 @@ Challenge: How many total degrees were issued each year? How many total degrees 
 
 ## Indexing by Position: Vectors
 
-We can access the individual values in vectors or data frame by their index position. We put the number of the element we want in \[\].
+We can access the individual values in vectors or data frame by their index position. We put the number of the element we want in `[]`.
 
 Let's start with vectors:
 
@@ -464,12 +627,6 @@ Which years were more than 600 doctoral degrees awarded? You might want to break
 
 ```
 
-Challenge:
-
-```{r}
-
-```
-
 # Missing Values
 
 `NA` is the symbol for missing data; it can be used with any data type
@@ -515,21 +672,21 @@ penguins[complete.cases(penguins),] ## effectively drops rows with any missing v
 
 ## EXERCISE
 
-How many missing values in penguins\$bill_depth_mm?
+How many missing values in `penguins$bill_depth_mm`?
 
-What is the mean of the non-missing values of penguins\$bill_depth_mm?
-
-```{r}
-
-```
-
-Challenge: Select the rows from penguins where penguins\$bill_depth_mm is missing.
+What is the mean of the non-missing values of `penguins$bill_depth_mm`?
 
 ```{r}
 
 ```
 
-Challenge: What is the mean of non-missing values of penguins\$bill_depth_mm for penguins of species Gentoo?
+Challenge: Select the rows from penguins where `penguins$bill_depth_mm` is missing.
+
+```{r}
+
+```
+
+Challenge: What is the mean of non-missing values of `penguins$bill_depth_mm` for penguins of species Gentoo?
 
 ```{r}
 
