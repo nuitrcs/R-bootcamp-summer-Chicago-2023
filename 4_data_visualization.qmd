@@ -12,9 +12,7 @@ editor_options:
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(
   eval=FALSE, warning=FALSE, error=FALSE
-)Data Visualization
-
-Often, plotting your data will be much more informative than summary statistics alone. R has built-in plotting functions, as well as several packages such as ggplot which offer advanced plotting capabilities.
+)
 ```
 
 # Data Visualization
