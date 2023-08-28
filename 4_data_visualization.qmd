@@ -60,7 +60,7 @@ The syntax for constructing ggplots could be puzzling if you are a beginner or w
 
 -   The second noticeable feature is that you can keep enhancing the plot by adding more layers (and themes) to an existing plot created using the `ggplot()` function
 
-Let\'s initialize a basic ggplot based on the midwest dataset:
+Let's initialize a basic ggplot based on the midwest dataset:
 
 ```{r}
 # Setup
@@ -77,13 +77,13 @@ View(midwest)
 ggplot(midwest, aes(x=area, y=poptotal))  # area and poptotal are columns in 'midwest'
 ```
 
-A blank ggplot is drawn. Even though the `x` and `y` are specified, there are no points or lines in it. This is because, ggplot doesn\'t assume that you meant a scatterplot or a line chart to be drawn. I have only told ggplot what dataset to use and what columns should be used for X and Y axis. I haven\'t explicitly asked it to draw any points.
+A blank ggplot is drawn. Even though the `x` and `y` are specified, there are no points or lines in it. This is because, ggplot doesn't assume that you meant a scatterplot or a line chart to be drawn. I have only told ggplot what dataset to use and what columns should be used for X and Y axis. I haven't explicitly asked it to draw any points.
 
-Also note that `aes()` function is used to specify the X and Y axes. That\'s because, any information that is part of the source dataframe has to be specified inside the `aes()` function.
+Also note that `aes()` function is used to specify the X and Y axes. That's because, any information that is part of the source dataframe has to be specified inside the `aes()` function.
 
 # Make a simple scatterplot
 
-Let\'s make a scatterplot on top of the blank ggplot by adding points using a geom layer called `geom_point`
+Let's make a scatterplot on top of the blank ggplot by adding points using a geom layer called `geom_point`
 
 ```{r}
 ggplot(midwest, aes(x=area, y=poptotal)) + geom_point()
@@ -132,7 +132,7 @@ penguin_plot
 
 ## Adding a statistic to your plot
 
-For now, let\'s just add a smoothing layer using `geom_smooth(method='lm')`. Since the `method` is set as `lm` (short for [*linear model*](http://r-statistics.co/Linear-Regression.html)), it draws the line of best fit.
+For now, let's just add a smoothing layer using `geom_smooth(method='lm')`. Since the `method` is set as `lm` (short for [*linear model*](http://r-statistics.co/Linear-Regression.html)), it draws the line of best fit.
 
 ```{r}
 g <- ggplot(midwest, aes(x=area, y=poptotal)) + geom_point() + geom_smooth(method="lm")  
@@ -142,7 +142,7 @@ plot(g)
 
 The line of best fit is in blue. Can you find out what other `method` options are available for `geom_smooth`?(note: see `?geom_smooth`).
 
-You might have noticed that majority of points lie in the bottom of the chart which doesn\'t really look nice. So, let\'s change the Y-axis limits to focus on the lower half.
+You might have noticed that majority of points lie in the bottom of the chart which doesn't really look nice. So, let's change the Y-axis limits to focus on the lower half.
 
 ## EXERCISE
 
@@ -186,7 +186,7 @@ Did you notice that the line of best fit became more horizontal compared to the 
 
 The other method is to change the X and Y axis limits by zooming in to the region of interest *without* deleting the points. This is done using `coord_cartesian()`.
 
-Let\'s store this plot as `g1`.
+Let's store this plot as `g1`.
 
 ```{r}
 g <- ggplot(midwest, aes(x=area, y=poptotal)) + geom_point() + geom_smooth(method="lm")  # set se=FALSE to turnoff confidence bands
@@ -209,7 +209,7 @@ Limit the flipper length to values between 180 and 220 in `penguin_plot` without
 
 ## Change the Title and Axis Labels
 
-I have stored this as `g1`. Let\'s add the plot title and labels for X and Y axis. This can be done in one go using the `labs()` function with `title`, `x` and `y` arguments. Another option is to use the `ggtitle()`, `xlab()` and `ylab()`.
+I have stored this as `g1`. Let's add the plot title and labels for X and Y axis. This can be done in one go using the `labs()` function with `title`, `x` and `y` arguments. Another option is to use the `ggtitle()`, `xlab()` and `ylab()`.
 
 ```{r}
 g <- ggplot(midwest, aes(x=area, y=poptotal)) + geom_point() + geom_smooth(method="lm")  # set se=FALSE to turnoff confidence bands
@@ -246,7 +246,7 @@ Add suitable axis labels and titles to `penguin_plot`
 
 ### Set a static color or size
 
-We can change the aesthetics of a geom layer by modifying the respective geoms. Let\'s change the color of the points and the line to astatic value.
+We can change the aesthetics of a geom layer by modifying the respective geoms. Let's change the color of the points and the line to astatic value.
 
 ```{r}
 ggplot(midwest, aes(x=area, y=poptotal)) + 
