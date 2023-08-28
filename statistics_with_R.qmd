@@ -314,7 +314,7 @@ Does body mass depend on species and/or sex?
 
 ### EXERCISE
 
-Test if there is a significant interaction between flipper length and bill length for predicting body mass in male Gentoo penguins
+Test if there is a significant interaction between flipper length and bill length for predicting body mass in male Gentoo penguins. Hint: use `pred1:pred2` to add an interaction term between two predictors in the formula.
 
 ```{r}
 
