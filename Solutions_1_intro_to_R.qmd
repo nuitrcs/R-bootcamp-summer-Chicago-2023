@@ -88,8 +88,7 @@ TRUE | FALSE
 Type some math equations in the console. Lacking inspiration? What's the square root of 394, minus 5, cubed?
 
 ```{r}
-
-
+(sqrt(394)-5)^3
 ```
 
 ## File paths
@@ -116,7 +115,7 @@ Whenever you refer to a file with a *relative path* it will look for it in the w
 Set the working directory for your RStudio session to `R-bootcamp-summer-Chicago-2023`. Use either a console command or the GUI options.
 
 ```{r}
-
+setwd("R-bootcamp-summer-Chicago-2023")
 ```
 
 ## RStudio Projects
@@ -130,7 +129,7 @@ To make a project you would click File \> New Project, then follow the prompts. 
 Check that you are currently working within the `R-bootcamp-summer-Chicago-2023` Project. If not, open the relevant .RProj file in a new RStudio session.
 
 ```{r}
-
+getwd()
 ```
 
 ## Code scripts and R Document files
@@ -343,9 +342,10 @@ Using the `penguins` data frame, write commands to figure out:
 -   Names of the variables?
 
 ```{r}
+nrow(penguins)
+ncol(penguins)
 
-
-
+names(penguins)
 ```
 
 ## Working with Variables
@@ -383,18 +383,20 @@ What is the standard deviation in the number of doctoral degrees issued each yea
 How many total masters degrees were issued for the years in the data? Hint: `sum()`
 
 ```{r}
+degrees <- read.csv("data/nu_degrees.csv")
+View(degrees)
 
-
-
-
-
-
+mean(degrees$bachelors)
 ```
 
 Challenge: How many total degrees were issued each year? How many total degrees were issued across all years and types?
 
 ```{r}
+total_deg_by_year <- degrees$bachelors + degrees$masters + degrees$doctorates
+total_deg_by_year
 
+sum(total_deg_by_year)
+sum(degrees[,-1]) # also works
 ```
 
 ## Indexing by Position: Vectors
@@ -443,7 +445,10 @@ What is the mean for the second 5 years in the data?
 What is the mean number of doctoral degrees per year excluding the most recent year of 2021-22?
 
 ```{r}
-
+mean(degrees[1:5,]$bachelors)
+mean(degrees[6:10,]$bachelors)
+mean(degrees[-10,]$doctorates)
+mean(degrees[-nrow(degrees),]$doctorates)
 ```
 
 ## Detour: Tibbles vs. Data Frames
@@ -522,13 +527,13 @@ month_info[c(1, 3), ]
 Using the Northwestern degree data set from above: select rows 2 through 5, and columns 1 through 2
 
 ```{r}
-
+degrees[2:5, 1:3]
 ```
 
 Challenge: look up the `seq()` function in the Help. Use it to select every other row from the degree data.
 
 ```{r}
-
+degrees[seq(1, nrow(degrees), 2),]
 ```
 
 ## Indexing by Names
@@ -624,7 +629,7 @@ penguins[penguins$bill_length_mm < 34 | penguins$bill_length_mm > 58,]
 Which years were more than 600 doctoral degrees awarded? You might want to break this down into two steps: 1) write an expression for determining whether there were more than 600 doctoral degrees, then 2) use that expression to index the correct column of your degrees data.
 
 ```{r}
-
+degrees[degrees$doctorates > 600, "year"]
 ```
 
 # Missing Values
@@ -677,19 +682,20 @@ How many missing values in `penguins$bill_depth_mm`?
 What is the mean of the non-missing values of `penguins$bill_depth_mm`?
 
 ```{r}
-
+sum(is.na(penguins$bill_depth_mm))
+mean(!is.na(penguins$bill_depth_mm))
 ```
 
 Challenge: Select the rows from penguins where `penguins$bill_depth_mm` is missing.
 
 ```{r}
-
+penguins[is.na(penguins$bill_depth_mm), ]
 ```
 
 Challenge: What is the mean of non-missing values of `penguins$bill_depth_mm` for penguins of species Gentoo?
 
 ```{r}
-
+mean(penguins[penguins$species=="Gentoo" & !is.na(penguins$bill_depth_mm),]$bill_depth_mm)
 ```
 
 # Column Names
@@ -788,20 +794,22 @@ names(penguins)
 Using `month_info`: make a new variable as part of `month_info`, called `weeks`, that is the number of days divided by 7.
 
 ```{r}
-
-
+month_info$weeks <- month_info$days/7
+month_info
 ```
 
 Make a new column in the degrees data with the total number of degrees awarded each year
 
 ```{r}
-
+degrees$total <- degrees$bachelors + degrees$masters + degrees$doctorate
+degrees
 ```
 
 Challenge: Make a new logical column called `long_month` that is TRUE if the month has 31 days
 
 ```{r}
-
+month_info$long_month <- month_info$days == 31
+month_info
 ```
 
 # Dropping Variables
@@ -871,7 +879,8 @@ some_numbers <- data.frame(v1 = rnorm(10), v2 = runif(10))
 Replace all values of v1 that are below 0 with the value 0
 
 ```{r}
-
+some_numbers$v1[some_numbers$v1 < 0] <- 0
+some_numbers
 ```
 
 # Building Up Expressions
@@ -883,14 +892,16 @@ Which penguins are the heaviest?
 Let's build this up together...
 
 ```{r}
-
-
+penguins[penguins$body_mass_g > mean(penguins$body_mass_g, na.rm = TRUE), ]
 ```
 
 What proportion of Adelie penguins have above average flipper length?
 
 ```{r}
+adelie <- penguins[penguins$species=="Adelie",]
+above_avg <- adelie[adelie$flipper_length_mm > mean(adelie$flipper_length_mm, na.rm=TRUE), ]
 
+nrow(above_avg)/nrow(adelie)
 ```
 
 # PRACTICE SET 1
@@ -908,7 +919,8 @@ If you mess up the data frame, you can always read it back in from the file.
 What are the variable names, and how many observations are there?
 
 ```{r}
-
+names(evp)
+nrow(evp)
 ```
 
 ## EXERCISE 2
@@ -918,7 +930,7 @@ Are there any missing values in the data?
 There are a few ways you might approach this
 
 ```{r}
-
+sum(is.na(evp))
 ```
 
 ## EXERCISE 3
@@ -928,7 +940,7 @@ What is the most common location? You may want to use the `table()` function.
 Hint: you can use the `sort()` function in combination with the `table()` function: `sort(table(x))`
 
 ```{r}
-
+sort(table(evp$location))
 ```
 
 ## EXERCISE 4
@@ -938,13 +950,13 @@ How many stops found contraband?
 Hint (for one approach to this): if you `sum()` a boolean variable, TRUE = 1, FALSE = 0, so it counts the TRUE values. Remember to deal with missing values with `sum()`: `sum(x, na.rm=TRUE)`. You could also make a table.
 
 ```{r}
-
+sum(evp$contraband_found, na.rm=TRUE)
 ```
 
 What proportion of all stops in the data found contraband?
 
 ```{r}
-
+sum(evp$contraband_found, na.rm=TRUE)/nrow(evp)
 ```
 
 ## EXERCISE 5
@@ -952,7 +964,8 @@ What proportion of all stops in the data found contraband?
 Rename the column "raw_row_number" to "id"
 
 ```{r}
-
+names(evp)[1] <- "id"
+names(evp)
 ```
 
 ## EXERCISE 6
@@ -960,7 +973,7 @@ Rename the column "raw_row_number" to "id"
 Subset the data frame to just have rows where subject_sex is "female" and save the result in a new variable.
 
 ```{r}
-
+evp_new <- evp[evp$subject_sex=="female",]
 ```
 
 ## EXERCISE 7
@@ -968,7 +981,8 @@ Subset the data frame to just have rows where subject_sex is "female" and save t
 Make a new column in the data frame called evanston that is TRUE if the location is 60201 or 60202 and FALSE otherwise.
 
 ```{r}
-
+evp$evanston <- evp$location==60201 | evp$location==60202
+head(evp$evanston)
 ```
 
 ## EXERCISE 8
@@ -980,7 +994,7 @@ What is the *make* of the oldest vehicles in the data set.
 Hint: there are two observations in the data that both have the minimum vehicle_year.
 
 ```{r}
-
+evp[evp$vehicle_year == min(evp$vehicle_year),]$vehicle_make
 ```
 
 ## EXERCISE 9
@@ -992,7 +1006,17 @@ What percentage of men in the dataset drive a Toyota ("TOYT")? How does this com
 What percentage of Toyota drivers are male? What percentage of drivers in the data set are male?
 
 ```{r}
+# percentage of men in the dataset driving a Toyota
+100 * nrow(evp[evp$subject_sex=="male" & evp$vehicle_make=="TOYT",]) / nrow(evp[evp$subject_sex=="male",])
 
+# percentage of women in the dataset driving a Toyota
+100 * nrow(evp[evp$subject_sex=="female" & evp$vehicle_make=="TOYT",]) / nrow(evp[evp$subject_sex=="female",])
+
+# percentage of Toyota drivers that are male
+100 * nrow(evp[evp$subject_sex=="female" & evp$vehicle_make=="TOYT",]) / nrow(evp[evp$vehicle_make=="TOYT",])
+
+# percentage of drivers that are male
+100 * nrow(evp[evp$subject_sex=="male",]) / nrow(evp)
 ```
 
 # Compute by Group
@@ -1062,15 +1086,13 @@ Compute group means of `body_mass_g` by `sex` with `tapply()` and `aggregate()`.
 Use `tapply()`
 
 ```{r}
-
-
+tapply(penguins$body_mass_g, penguins$sex, mean, na.rm=TRUE)
 ```
 
 Use `aggregate()`
 
 ```{r}
-
-
+aggregate(body_mass_g ~ sex, data=penguins, mean, na.rm=TRUE)
 ```
 
 # PRACTICE SET 2
@@ -1090,7 +1112,9 @@ This data is in what we call long format -- there is one row (observation) per d
 View() the data, and look at the column names and column types. How many rows and columns?
 
 ```{r}
-
+View(phds)
+nrow(phds)
+ncol(phds)
 ```
 
 ## EXERCISE 2
@@ -1100,7 +1124,7 @@ Select programs/degrees where it's not a PhD (use the phd indicator column). The
 Challenge: use the unique() function to get a vector that has each program in the list only once.
 
 ```{r}
-
+unique(phds[phds$phd!=1,]$program)
 ```
 
 ## EXERCISE 3
@@ -1108,7 +1132,8 @@ Challenge: use the unique() function to get a vector that has each program in th
 Select data just for 2021-22. Which program awarded the most degrees?
 
 ```{r}
-
+phds_2021 <- phds[phds$year=="2021-22",]
+phds_2021$program[phds_2021$count == max(phds_2021$count)]
 ```
 
 ## EXERCISE 4
@@ -1116,7 +1141,7 @@ Select data just for 2021-22. Which program awarded the most degrees?
 How many different programs awarded at least one degree in 2021-22?
 
 ```{r}
-
+length(unique(phds$program[phds$count>=1]))
 ```
 
 ## EXERCISE 5
@@ -1124,7 +1149,8 @@ How many different programs awarded at least one degree in 2021-22?
 Compute the total number of degrees awarded each year.
 
 ```{r}
-
+aggregate(count ~ year, data=phds, sum)
+tapply(phds$count, phds$year, sum)
 ```
 
 ## EXERCISE 6
@@ -1132,7 +1158,7 @@ Compute the total number of degrees awarded each year.
 Compute the total number of degrees awarded in 2021-22 by school.
 
 ```{r}
-
+aggregate(count ~ school, data = phds[phds$year=="2021-22",], sum)
 ```
 
 ## EXERCISE 7
@@ -1140,7 +1166,7 @@ Compute the total number of degrees awarded in 2021-22 by school.
 Are there any programs who awarded no degrees during the time period covered by the data set?
 
 ```{r}
-
+unique(phds$program[phds$count==0])
 ```
 
 ## EXERCISE 8
@@ -1148,5 +1174,9 @@ Are there any programs who awarded no degrees during the time period covered by 
 Which school had the greatest increase in the number of degrees awarded between 2010-11 and 2021-22?
 
 ```{r}
+total_11 <- aggregate(count ~ school, data = phds[phds$year=="2010-11",], sum)
+total_22 <- aggregate(count ~ school, data = phds[phds$year=="2021-22",], sum)
 
+total_22$difference = total_22$count - total_11$count
+total_22
 ```
