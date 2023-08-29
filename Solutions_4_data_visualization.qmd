@@ -1,0 +1,740 @@
+---
+output:
+  html_document:
+    df_print: paged
+    code_download: TRUE
+    toc: true
+    toc_depth: 1
+editor_options:
+  chunk_output_type: console
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(
+  eval=FALSE, warning=FALSE, error=FALSE
+)
+```
+
+# Data Visualization
+
+Often, plotting your data will be much more informative than summary statistics alone. The R package *ggplot2* is the most widely used and aesthetically pleasing graphics framework available in R. It relies on a structure called the "grammar of graphics". Essentially, it follows a layered approach to describe and construct the visualization.
+
+## Installing `{ggplot2}`
+
+First, install and load the *ggplot2* package in your workspace.
+
+```{r}
+# install.packages("ggplot2")
+library(ggplot2)
+```
+
+## The grammar of graphics
+
+![](https://miro.medium.com/v2/resize:fit:2000/format:webp/1*mcLnnVdHNg-ikDbHJfHDNA.png){width="665"}
+
+Typically, to build or describe any visualization with one or more dimensions, we can use the components as follows.
+
+1.  **Data**: Always start with the data, identify the dimensions you want to visualize.
+
+2.  **Aesthetics**: Confirm the axes based on the data dimensions, positions of various data points in the plot. Also check if any form of encoding is needed including size, shape, color and so on which are useful for plotting multiple data dimensions.
+
+3.  **Scale:** Do we need to scale the potential values, use a specific scale to represent multiple values or a range? For example you can scale the data to log of the original values.
+
+4.  **Geometric objects:** These are popularly known as 'geoms'. This would cover the way we would depict the data points on the visualization. Should it be points, bars, lines and so on?
+
+5.  **Statistics:** Do we need to show some statistical measures in the visualization like measures of central tendency, spread, confidence intervals?
+
+6.  **Facets:** Do we need to create subplots based on specific data dimensions?
+
+7.  **Coordinate system:** What kind of a coordinate system should the visualization be based on ---should it be cartesian or polar?
+
+Here is a handy [cheat sheet for ggplot2](https://statsandr.com/blog/files/ggplot2-cheatsheet.pdf)!
+
+# Understanding the `{ggplot}` Syntax
+
+The syntax for constructing ggplots could be puzzling if you are a beginner or work primarily with base graphics. The main difference is that, unlike base graphics:
+
+-   `{ggplot}` works with dataframes and not individual vectors. All the data needed to make the plot is typically becontained within the dataframe supplied to the `ggplot()` itself or can be supplied to respective geoms.
+
+-   The second noticeable feature is that you can keep enhancing the plot by adding more layers (and themes) to an existing plot created using the `ggplot()` function
+
+Let's initialize a basic ggplot based on the midwest dataset:
+
+```{r}
+# Setup
+options(scipen=999)  # turn off scientific notation like 1e+06
+library(ggplot2)
+
+data("midwest", package = "ggplot2")  # load the data (part of the ggplot2 package)
+
+View(midwest)
+```
+
+```{r}
+# Initialize a plot by calling the ggplot() function
+ggplot(midwest, aes(x=area, y=poptotal))  # area and poptotal are columns in 'midwest'
+```
+
+A blank ggplot is drawn. Even though the `x` and `y` are specified, there are no points or lines in it. This is because, ggplot doesn't assume that you meant a scatterplot or a line chart to be drawn. I have only told ggplot what dataset to use and what columns should be used for X and Y axis. I haven't explicitly asked it to draw any points.
+
+Also note that `aes()` function is used to specify the X and Y axes. That's because, any information that is part of the source dataframe has to be specified inside the `aes()` function.
+
+# Make a simple scatterplot
+
+Let's make a scatterplot on top of the blank ggplot by adding points using a geom layer called `geom_point`
+
+```{r}
+ggplot(midwest, aes(x=area, y=poptotal)) + geom_point()
+```
+
+Notice how layering works with the + operator.
+
+We got a basic scatterplot, where each point represents a county. However, it lacks some basic components such as the plot title, meaningful axis labels etc. Moreover most of the points are concentrated on the bottom portion of the plot, which is not so nice. You will see how to rectify these in upcoming steps.
+
+## Using geoms to make other plot types
+
+Like `geom_point()`, there are many such geom layers such as `geom_line` , `geom_bar`, `geom_density`, `geom_histgram`, etc.
+
+```{r}
+# histogram of county area
+ggplot(midwest, aes(x=area)) + geom_histogram(bins=100)
+```
+
+```{r}
+# density plot of county area
+ggplot(midwest, aes(x=area)) + geom_density()
+```
+
+```{r}
+# make a boxplot
+ggplot(midwest, aes(x=area, y=state)) + geom_boxplot(aes(fill=state)) 
+```
+
+```{r}
+# make a violinplot
+ggplot(midwest, aes(x=area, y=state)) + geom_violin(aes(fill=state))
+```
+
+## EXERCISE
+
+Load the penguins data from before by loading the `palmerpenguins` package in your workspace.
+
+Make a scatterplot of flipper length and body mass with point representations for each observation
+
+```{r}
+library(palmerpenguins)
+
+penguin_plot  <-  ggplot(data = penguins , aes(x = flipper_length_mm, y = body_mass_g)) + geom_point()
+penguin_plot
+```
+
+## Adding a statistic to your plot
+
+For now, let's just add a smoothing layer using `geom_smooth(method='lm')`. Since the `method` is set as `lm` (short for [*linear model*](http://r-statistics.co/Linear-Regression.html)), it draws the line of best fit.
+
+```{r}
+g <- ggplot(midwest, aes(x=area, y=poptotal)) + geom_point() + geom_smooth(method="lm")  
+# set se=FALSE to turnoff confidence bands
+plot(g)
+```
+
+The line of best fit is in blue. Can you find out what other `method` options are available for `geom_smooth`?(note: see `?geom_smooth`).
+
+You might have noticed that majority of points lie in the bottom of the chart which doesn't really look nice. So, let's change the Y-axis limits to focus on the lower half.
+
+## EXERCISE
+
+Add a linear fit line to the `penguin_plot` from before
+
+```{r}
+penguin_plot + geom_smooth(method="lm")
+```
+
+## EXERCISE
+
+What if I just want a smooth (non-linear) fit to the plot above? Hint: use method `loess`
+
+```{r}
+penguin_plot + geom_smooth(method="loess")
+```
+
+## Adjusting the X and Y axis limits
+
+The X and Y axis limits can be controlled in 2 ways.
+
+### **Method 1**: By deleting the points outside the range
+
+This will change the lines of best fit or smoothing lines as compared to the original data.
+
+This can be done by `xlim()` and `ylim()`. You can pass a numeric vector of length 2 (with max and min values) or just the max and min values itself.
+
+```{r}
+g <- ggplot(midwest, aes(x=area, y=poptotal)) + geom_point() + geom_smooth(method="lm")  # set se=FALSE to turnoff confidence bands
+
+# Delete the points outside the limits
+g + xlim(c(0, 0.1)) + ylim(c(0, 1000000))   # deletes points
+```
+
+In this case, the chart was not built from scratch but rather was built on top of `g`. This is because, the previous plot was stored as `g`, a ggplot object, which when called will reproduce the original plot. Using ggplot, you can add more layers, themes and other settings on top of this plot.
+
+Did you notice that the line of best fit became more horizontal compared to the original plot? This is because, when using `xlim()` and `ylim()`, the points outside the specified range are deleted and will not be considered while drawing the line of best fit (using `geom_smooth(method='lm')`). This feature might come in handy when you wish to know how the line of best fit would change when some extreme values (or outliers) are removed.
+
+### **Method 2**: Zooming In
+
+The other method is to change the X and Y axis limits by zooming in to the region of interest *without* deleting the points. This is done using `coord_cartesian()`.
+
+Let's store this plot as `g1`.
+
+```{r}
+g <- ggplot(midwest, aes(x=area, y=poptotal)) + geom_point() + geom_smooth(method="lm")  # set se=FALSE to turnoff confidence bands
+
+# Zoom in without deleting the points outside the limits. 
+# As a result, the line of best fit is the same as the original plot.
+g1 <- g + coord_cartesian(xlim=c(0,0.1), ylim=c(0, 1000000))  # zooms in
+plot(g1)
+```
+
+Since all points were considered, the line of best fit did not change.
+
+## EXERCISE
+
+Limit the flipper length to values between 180 and 220 in `penguin_plot` without removing the original points from the best-fit line calculation
+
+```{r}
+penguin_plot + geom_smooth(method="lm") + coord_cartesian(xlim=c(180, 220))
+```
+
+## Change the Title and Axis Labels
+
+I have stored this as `g1`. Let's add the plot title and labels for X and Y axis. This can be done in one go using the `labs()` function with `title`, `x` and `y` arguments. Another option is to use the `ggtitle()`, `xlab()` and `ylab()`.
+
+```{r}
+g <- ggplot(midwest, aes(x=area, y=poptotal)) + geom_point() + geom_smooth(method="lm")  # set se=FALSE to turnoff confidence bands
+
+g1 <- g + coord_cartesian(xlim=c(0,0.1), ylim=c(0, 1000000))  # zooms in
+
+# Add Title and Labels
+g1 + labs(title="Area Vs Population", subtitle="From midwest dataset", y="Population", x="Area", caption="Midwest Demographics")
+
+# or
+
+g1 + ggtitle("Area Vs Population", subtitle="From midwest dataset") + xlab("Area") + ylab("Population")
+```
+
+Excellent! So here is the full function call.
+
+```{r}
+ggplot(midwest, aes(x=area, y=poptotal)) + 
+  geom_point() + 
+  geom_smooth(method="lm") + 
+  coord_cartesian(xlim=c(0,0.1), ylim=c(0, 1000000)) + 
+  labs(title="Area Vs Population", subtitle="From midwest dataset", y="Population", x="Area", caption="Midwest Demographics")
+```
+
+## EXERCISE
+
+Add suitable axis labels and titles to `penguin_plot`
+
+```{r}
+penguin_plot + labs(x = "Flipper length (mm)", y = "Body mass (g)", title = "Penguins Data")
+```
+
+## Change the Color and Size of Points
+
+### Set a static color or size
+
+We can change the aesthetics of a geom layer by modifying the respective geoms. Let's change the color of the points and the line to astatic value.
+
+```{r}
+ggplot(midwest, aes(x=area, y=poptotal)) + 
+  geom_point(col="steelblue", size=3) +   # Set static color and size for points
+  geom_smooth(method="lm", col="firebrick") +  # change the color of line
+  coord_cartesian(xlim=c(0, 0.1), ylim=c(0, 1000000)) + 
+  labs(title="Area Vs Population", subtitle="From midwest dataset", y="Population", x="Area", caption="Midwest Demographics")
+```
+
+## EXERCISE
+
+Change the color to red and transparency (alpha) of the points to 0.5 by setting parameters within `geom_point` for `penguin_plot`
+
+```{r}
+ggplot(data = penguins , aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(color="red", alpha=0.5) +
+  labs(x = "Flipper length (mm)", y = "Body mass (g)", title = "Penguins Data")
+```
+
+### Change the Color To Reflect Categories in Another Column
+
+Suppose if we want the color to change based on another column in the source dataset (`midwest`), it must be specified inside the `aes()` function.
+
+```{r}
+gg <- ggplot(midwest, aes(x=area, y=poptotal)) + 
+  geom_point(aes(col=state), size=3) +  # Set color to vary based on state categories.
+  geom_smooth(method="lm", col="firebrick", size=2) + 
+  coord_cartesian(xlim=c(0, 0.1), ylim=c(0, 1000000)) + 
+  labs(title="Area Vs Population", subtitle="From midwest dataset", y="Population", x="Area", caption="Midwest Demographics")
+plot(gg)
+```
+
+Now each point is colored based on the `state` it belongs because of `aes(col=state)`. Not just color, but `size`, `shape`, `stroke` (thickness of boundary) and `fill` (fill color) can be used to discriminate groupings.
+
+As an added benefit, the legend is added automatically. If needed, it can be removed by setting the `legend.position` to `None` from within a `theme()` function.
+
+```{r}
+gg + theme(legend.position="None")  # remove legend
+```
+
+Also, You can change the color palette entirely.
+
+```{r}
+gg + scale_colour_brewer(palette = "Set1")  # change color palette
+```
+
+More of such palettes can be found in the RColorBrewer package
+
+```{r}
+library(RColorBrewer)
+head(brewer.pal.info, 10)  # show 10 palettes
+```
+
+## EXERCISE
+
+Change the color of the points according to the species column for `penguin_plot`
+
+```{r}
+ggplot(data = penguins , aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(aes(color=species))
+```
+
+Note - You can also do this by setting `group` in `aes` , and setting the aesthetics for `geom_point` separately. This is useful if you want to plot multiple geoms in a plot (eg scatter points and a regression line).
+
+```{r}
+ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g, group=species)) +
+  geom_point(aes(color = species)) +
+  geom_smooth(method="lm", aes(color = species)) + 
+  labs(x = "Flipper length (mm)", y = "Body mass (g)", title = "Penguins Data")
+```
+
+# Themes
+
+Now suppose, we want to make the graph more elegant. Let's use themes to clean up the background.
+
+I like using the `theme_pubr()` from the `{ggpubr}` package:
+
+```{r}
+#install.packages("ggpubr")
+library(ggpubr)
+
+ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g, group=species)) +
+  geom_point(aes(color = species)) +
+  geom_smooth(method="lm", aes(color = species)) + 
+  labs(x = "Flipper length (mm)", y = "Body mass (g)", title = "Penguins Data") +
+  theme_pubr()
+```
+
+Themes can be [customized](https://rpubs.com/mclaire19/ggplot2-custom-themes) to every detail - the [possibilities](https://ggplot2.tidyverse.org/reference/theme.html) are endless!
+
+The [`{ggsci}`](https://cran.r-project.org/web/packages/ggsci/vignettes/ggsci.html) package offers a collection of high-quality color palettes inspired by colors used in scientific journals, data visualization libraries, science fiction movies, and TV shows. But there are several in-built themes in ggplot that you can use:
+
+```{r}
+ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g, color=species)) +
+  geom_point() +
+  geom_smooth(method="lm") +
+  labs(x = "Flipper length (mm)", y = "Body mass (g)", title = "Penguins Data") +
+  theme_classic()
+```
+
+## Fonts
+
+Themes are extremely versatilt. For example, theme options let you change the axis font styles using custom inputs:
+
+```{r}
+ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g, color=species)) +
+  geom_point() + theme_classic() +
+  theme(axis.title.x = element_text(color="dodgerblue", size=15, face="italic", family="Comic Sans MS"))
+```
+
+Notice how the theme custom input over-rides the defaults set in `theme_classic()` . The order of layering matters. The last passed input will be retained.
+
+## EXERCISE
+
+Add a theme of your choosing from [here](https://r-charts.com/ggplot2/themes/) to `penguin_plot` Remember, if you are using a new package, first install and load that package to access the themes inside it.
+
+```{r}
+install.packages("ggthemes")
+library(ggthemes)
+
+ggplot(data = penguins , aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(aes(color=species)) +
+  theme_few()
+```
+
+# Separating by Facets
+
+The graph above still looks quite messy. Maybe we want to separate out the three species into individual panels.
+
+```{r}
+ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g, group=species)) +
+  geom_point(aes(color = species), size = 2, alpha = 0.8) +
+  geom_smooth(method="lm", aes(color=species, fill=species), alpha=0.1) + 
+  theme_classic() +
+  labs(x = "Flipper length (mm)", y = "Body mass (g)", title = "Penguins Data") +
+  facet_grid(~species) # facet by species -- note the use of a formula!!
+```
+
+You can separate by more than one column, for example:
+
+```{r}
+ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g, group=species)) +
+  geom_point(aes(color = species), size = 2, alpha = 0.8) +
+  geom_smooth(method="lm", aes(color=species, fill=species), alpha=0.1) + 
+  theme_classic() +
+  labs(x = "Flipper length (mm)", y = "Body mass (g)", title = "Penguins Data") +
+  facet_grid(~species + island)
+```
+
+## EXERCISE
+
+Separate the plot above into facets by sex. Make sure to remove observations that have no sex specified.
+
+```{r}
+penguins_clean <- penguins[!is.na(penguins$sex),]
+
+ggplot(data=penguins_clean, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(aes(color = species), size = 2, alpha = 0.8)+
+  facet_grid(~sex)
+```
+
+# Saving your beautiful plots!
+
+Suppose you created a bunch of plots and now you want to save them, you can use the [`ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html) function:
+
+```{r}
+# save the plot object as a variable
+p <- ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g, group=species)) +
+  geom_point(aes(color = species), size = 2, alpha = 0.8) +
+  geom_smooth(method="lm", aes(color=species, fill=species), alpha=0.1) + 
+  theme_classic() +
+  labs(x = "Flipper length (mm)", y = "Body mass (g)", title = "Penguins Data") +
+  facet_grid(~species) # facet by species -- note the use of a formula!!
+
+name <- "my_beautiful_plot.pdf"
+
+ggsave(name, plot=p, height = 4, width = 6, device="pdf", useDingbats=F) # setting useDingbats to FALSE lets you edit plot fonts in Illustrator
+```
+
+# Arranging multiple plots
+
+If you are preparing several different plots for publication, perhaps you want to arrange them in a grid before exporting and saving them.
+
+Let's create another fictional plot first:
+
+```{r}
+library(ggpubr)
+set.seed(1234)
+wdata = data.frame(sex = factor(rep(c("F", "M"), each=200)), weight = c(rnorm(200, 55), rnorm(200, 58)))
+
+plot_new <- ggdensity(wdata, x = "weight", 
+                      add="mean", rug=TRUE, 
+                      color = "sex", fill = "sex", palette = c("#00AFBB", "#E7B800"))
+plot_new
+```
+
+Using the packages `{grid}` and `{gridExtra}`:
+
+```{r}
+# arrange plot p and plot_new
+library(gridExtra)
+library(grid)
+
+plot_panel <- grid.arrange(p, plot_new, ncol=2)
+plot_panel
+
+plot_panel <- grid.arrange(p, plot_new, nrow=2)
+plot_panel
+```
+
+You can create very [complicated layouts](https://cran.r-project.org/web/packages/gridExtra/vignettes/arrangeGrob.html) if needed. You can also use the `{patchwork}` package to same effect.
+
+## 
+
+# PRACTICE EXERCISES
+
+Several of these exercises will require you to google or look up the documentation especially for custom theme inputs.
+
+Load in the data set below:
+
+```{r}
+chic <- readr::read_csv(file="data/chicago_weather_data.csv")
+```
+
+```{r}
+str(chic)
+View(chic)
+```
+
+### EXERCISE 1
+
+Generate a scatter plot of temperature vs date and add color the points `firebrick`
+
+```{r}
+p1 <- ggplot(data = chic, aes(x=date, y=temp)) + geom_point(col="firebrick")
+p1
+```
+
+### EXERCISE 2
+
+Now add a title to the plot and appropriate axis labels
+
+```{r}
+p2 <- p1 + labs(x = "Year", y = "Temperature", title = "Temperature in Chicago")
+p2
+```
+
+### EXERCISE 3
+
+Make the main title bold and grey in color
+
+```{r}
+p3 <- p2 + theme(plot.title = element_text(color="darkgrey", face="bold"))
+p3
+```
+
+### EXERCISE 4
+
+Get rid of axis ticks. Hint: look up the `theme()` and `axis.ticks.y`
+
+```{r}
+p4 <- p3 + theme(axis.ticks = element_blank())
+p4
+# element_blank() draws nothing, and assigns no space.
+```
+
+### EXERCISE 5
+
+Limit the range of the axis. Hint: See `ylim()`, `scale_x_continuous()` or `coord_cartesian()`
+
+```{r}
+p5 <- p4 + ylim(-10, 100)
+p5
+
+p5 <- p4 + coord_cartesian(ylim = c(-10, 100))
+p5
+```
+
+### EXERCISE 6
+
+Limit the range of the x-axis from 1995 to 2005. Hint: See `ylim()`, `scale_x_continuous()` or `coord_cartesian()`
+
+```{r}
+# special function if axis is a date range
+p6 <- p5 + scale_x_date(limits = as.Date(c("1995-01-01", "2005-01-01")))
+p6
+```
+
+### EXERCISE 7
+
+Color the plot based on season
+
+```{r}
+p7 <- ggplot(data = chic, aes(x=date, y=temp, group=factor(season))) + 
+  geom_point(aes(col=factor(season))) + # color points by season
+  labs(x = "Year", y = "Temperature", title = "Temperature in Chicago")
+p7
+```
+
+### EXERCISE 8
+
+Turn off the legend title. See `legend.title` parameter in `theme()`
+
+```{r}
+p8 <- p7 + theme(legend.title = element_blank())
+p8
+```
+
+### EXERCISE 9
+
+Change the title of the legend to be more informative
+
+```{r}
+p9 <-  p7 + labs(color = "Season")
+p9
+```
+
+### EXERCISE 10
+
+Set the theme to make the graph more clean in appearance
+
+```{r}
+p10 <- p9 + theme_classic2()
+p10
+```
+
+### EXERCISE 11
+
+Create a single row of 4 plots showing data from each year separately. Hint: use facets
+
+```{r}
+p11 <- p10 + facet_wrap(~year, ncol = 4)
+p11
+# facet_wrap and facet_grid are quite similar, except facet_wrap will only create plots when the combination of variables specified has some observations, while facet_grid will plpot and empty plot for such combinations.
+```
+
+### EXERCISE 12
+
+Make the above plot so that you have a 2x2 grid of plots instead of a row
+
+```{r}
+p12 <- p10 + facet_wrap(~year, ncol=2)
+p12
+```
+
+### EXERCISE 13
+
+Fit a smooth line to each facet plot. Change the color of the line to `black` and set the fill option to be translucent with `alpha`
+
+```{r}
+p13 <- p10 + facet_wrap(~year, ncol = 4) + geom_smooth(method="loess", col="black", fill="black", alpha=0.3)  # add geom_smooth
+p13
+```
+
+### EXERCISE 14
+
+Set the parameter `scales` to "free" inside the `facet_wrap()` function. What do you notice?
+
+```{r}
+p14 <- p10 + 
+  facet_wrap(~year, ncol = 4, scales = "free") + 
+  geom_smooth(method="loess", col="black", fill="black", alpha=0.3)
+p14
+```
+
+### EXERCISE 15
+
+Create a grid of plots using 2 variables `year` and `season`
+
+```{r}
+p15 <- p10 + facet_wrap(~year + season , scales = "free") +
+  geom_smooth(method="loess", col="black", fill="black", alpha=0.3) # with smoothing line added (optional)
+p15
+```
+
+### EXERCISE 16
+
+Create 2 unrelated plots of your choice from the data. And then arrange them together as you might for a publication.
+
+```{r}
+library(grid)
+library(gridExtra)
+
+new_plot <- p10 + facet_wrap(~season , scales = "free")
+
+p16 <- grid.arrange(p1, new_plot, ncol=2)
+p16
+```
+
+### EXERCISE 17
+
+Plot temperature vs date, color by season, and then choose a color palette instead of the default colors
+
+```{r}
+# build your own color scales
+p17a <- ggplot(data = chic, aes(x=date, y=temp, group=factor(season))) + 
+  geom_point(aes(col=factor(season))) + # color points by season
+  labs(x = "Year", y = "Temperature", title = "Temperature in Chicago") + theme_classic2() +
+  scale_color_manual(values=c("gold", "greenyellow", "pink", "deepskyblue"))
+p17a
+
+# color names - https://www.nceas.ucsb.edu/sites/default/files/2020-04/colorPaletteCheatsheet.pdf
+
+# use pre-built color scales
+p17 <- ggplot(data = chic, aes(x=date, y=temp, group=factor(season))) + 
+  geom_point(aes(col=factor(season))) + # color points by season
+  labs(x = "Year", y = "Temperature", title = "Temperature in Chicago") + theme_classic2() +
+  scale_color_brewer(palette="Spectral")
+p17
+```
+
+### EXERCISE 18
+
+Create a boxplot of o3 values by season. Then flip the coordinates for the boxplot
+
+```{r}
+p18 <- ggplot(data=chic, aes(x=season, y=o3)) +
+  geom_boxplot() +
+  coord_flip() # to flip the coordinates on the plot
+p18
+```
+
+### EXERCISE 19
+
+Create a violinplot similar to above, that is not trimmed at the ends. Color each season differently.
+
+```{r}
+p19 <- ggplot(data=chic, aes(x=season, y=o3, group=season)) +
+  geom_violin(trim = FALSE, aes(fill=season)) + # `fill` colors inside the violins, `color` colors the outline of the violin shape
+  theme_classic2()
+p19
+```
+
+### EXERCISE 20
+
+Add the mean and standard deviation for each season to the plot above
+
+```{r}
+p20 <- p19 + stat_summary(fun.data="mean_sdl", geom="pointrange", color="black")
+p20
+```
+
+### EXERCISE 21
+
+Generate a scatter plot of temperature vs date and add a trend line to the plot
+
+```{r}
+p21 <- ggplot(data=chic, aes(x=date, y=temp)) + geom_point(alpha=0.5) + theme_classic2() +
+  geom_smooth(method="loess", span=0.2) # set the span lower to get a more locally-fitted trendline
+p21
+```
+
+### EXERCISE 22
+
+Increase or decrease the smoothness of the trend line
+
+```{r}
+p22_high_span <- ggplot(data=chic, aes(x=date, y=temp)) + geom_point(alpha=0.5) + theme_classic2() +
+  geom_smooth(method="loess", span=0.5)
+p22_high_span
+
+p22_low_span <- ggplot(data=chic, aes(x=date, y=temp)) + geom_point(alpha=0.5) + theme_classic2() +
+  geom_smooth(method="loess", span=0.01)
+p22_low_span
+```
+
+### EXERCISE 23
+
+Create a density plot of `o3` and color the density lines by factor season. Fill in the density plots also colored by factor season.
+
+```{r}
+library(ggpubr)
+library(ggsci)
+
+p23 <- ggdensity(chic, x="o3", color="season", fill="season", alpha=0.5)
+p23
+```
+
+### EXERCISE 24
+
+Add a summary statistic mean for each season to the plot above
+
+```{r}
+p24 <- ggdensity(chic, x="o3", color="season", fill="season", alpha=0.5, add="mean")
+p24
+```
+
+### EXERCISE 25
+
+Save your plot from above with appropriate dimensions
+
+```{r}
+ggsave("my_saved_plot.pdf", p24, width=6, height=4, device="pdf", useDingbats=FALSE)
+```

@@ -1,0 +1,382 @@
+---
+output:
+  html_document:
+    df_print: paged
+    code_download: TRUE
+    toc: true
+    toc_depth: 1
+editor_options:
+  chunk_output_type: console
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(
+  eval=FALSE, warning=FALSE, error=FALSE
+)
+```
+
+# Statistics with R
+
+## Descriptive Statistics
+
+Any time that you get a new data set to look at, one of the first tasks that you have to do is find ways of summarizing the data in a compact, easily understood fashion. This is what ***descriptive statistics*** (as opposed to inferential statistics) is all about. In fact, to many people the term "statistics" is synonymous with descriptive statistics.
+
+In most situations, the first thing that you'll want to calculate is a measure of ***central tendency***. That is, you'd like to know something about the "average" or "middle" of your data lies. Let's see how to do this:
+
+```{r}
+antibiotic <- read.csv("data/antibiotic.csv")
+View(antibiotic)
+```
+
+R provides useful functions to calculate the mean:
+
+```{r}
+mean(antibiotic$before)
+```
+
+Similarly, some commonly used measures for variability are:
+
+```{r}
+sd(antibiotic$before) # standard deviation
+var(antibiotic$before) # variance
+```
+
+### EXERCISE
+
+What can you say about the average number of bacterial colonies before and after antibiotic treatment?
+
+```{r}
+mean(antibiotic$before) 
+mean(antibiotic$after)
+```
+
+### EXERCISE
+
+Calculate the standard deviation of the number of bacterial colonies before antibiotic treatment.
+
+```{r}
+sd(antibiotic$before) 
+sd(antibiotic$after)
+```
+
+## Categorical data analysis
+
+**Categorical data analysis** refers to a collection of tools that you can use when your data are nominal scale. However, there are a lot of different tools that can be used for categorical data analysis. We will cover one of the more common ones.
+
+### The χ2 goodness-of-fit test
+
+The χ2 (chi-squared) tests are most commonly used to test whether two categorical variables are independent. To use it, we must first construct a contingency table, i.e. a table showing the counts for different combinations of categories, typically using `table`. Here is an example with the `diamonds` data from `ggplot2`:
+
+```{r}
+library(ggplot2)
+```
+
+```{r, eval=FALSE}
+View(diamonds)
+```
+
+Find a description of the features in this dataset [here](https://ggplot2.tidyverse.org/reference/diamonds.html).
+
+```{r}
+table(diamonds$cut, diamonds$color)
+```
+
+The null hypothesis of our test is that the quality of the cut (`cut`) and the colour of the diamond (`color`) are independent, with the alternative being that they are dependent. We use `chisq.test` with the contingency table as input to run the χ2 test of independence:
+
+```{r}
+chisq.test(table(diamonds$cut, diamonds$color))
+```
+
+### EXERCISE
+
+Load the penguins dataset, and test if there is a dependence between the number of species collected by year.
+
+```{r}
+library(palmerpenguins)
+
+penguin_table <- table(penguins$species, penguins$year)
+penguin_table
+chisq.test(penguin_table)
+```
+
+## Comparing means of continuous values
+
+The standard answer to the problem of comparing means is to use a t-test, of which there are several varieties depending on exactly what question you want to solve.
+
+### One-sample t-test
+
+Say you want to test if the mean of your data is significantly different from a hypothesized mean:
+
+```{r}
+library(palmerpenguins)
+
+t.test(penguins$body_mass_g, mu=4000) # one sample t-test
+```
+
+### Two-sample t-test
+
+Similarly, to compare the means of two different samples:
+
+```{r}
+t.test(penguins$body_mass_g[penguins$sex == "male"],
+       penguins$body_mass_g[penguins$sex == "female"])
+```
+
+It drops rows/observations with missing values.
+
+If we have a variable that splits our data into two groups, we can use the formula syntax here `variable ~ groups`.
+
+```{r}
+# same as above
+t.test(formula = body_mass_g ~ sex, data=penguins)
+```
+
+#### Formulas
+
+A formula object specifies a relationship between other variables. A formula is specified using the "tilde operator" `~`. A very simple example of a formula is shown below:
+
+```         
+outcome_variable ~ predictor_variable
+```
+
+The *precise* meaning of this formula depends on exactly what you want to do with it, but in broad terms it means "the outcome variable, analysed in terms of the predictor variable". That said, although the simplest and most common form of a formula uses the "one variable on the left, one variable on the right" format, there are others. For instance, the following examples are all reasonably common.
+
+```         
+out ~ pred1 + pred2                 # more than one variable on the right
+out ~ pred1 + sqrt(pred2)           # transform a predictor variable
+    ~ var1 + var2                   # a 'one-sided' formula
+```
+
+### Paired t-test
+
+Finally, we come to the paired samples t-test. Supposing you want to test the efficacy of an antibiotic drug by comparing the levels of bacteria before and after drug administration:
+
+```{r}
+antibiotic <- read.csv("data/antibiotic.csv")
+```
+
+```{r}
+View(antibiotic)
+```
+
+```{r}
+t.test(antibiotic$before, antibiotic$after, paired=TRUE)
+```
+
+### EXERCISE
+
+Use `mtcars` data (read feature description [here](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/mtcars.html)) to test if the mode of transmission (encoded in `am`) significantly affects the miles per gallon `mpg` value.
+
+```{r}
+t.test(formula = mpg ~ am, data=mtcars)
+```
+
+### Correlation
+
+We can compute correlations as follows:
+
+```{r}
+cor(penguins$bill_depth_mm, penguins$bill_length_mm)
+```
+
+Remember, the `use` parameter to deal with missing values:
+
+```{r}
+cor(penguins$bill_depth_mm, penguins$bill_length_mm,
+    use = "pairwise")
+```
+
+Is our correlation "significant"?
+
+```{r}
+cor.test(penguins$bill_depth_mm, penguins$bill_length_mm,
+    use = "pairwise")
+```
+
+We can write the same thing with a formula syntax:
+
+```{r}
+cor.test( ~ bill_depth_mm + bill_length_mm, data = penguins, use="pairwise")
+```
+
+### EXERCISE
+
+Test the correlation between flipper length and body mass in `penguins` with a formula.
+
+```{r}
+cor.test(~ flipper_length_mm + body_mass_g, data = penguins)
+```
+
+### ANOVA
+
+ANOVA extends the idea of a t-test to more groups. We can see if the average values of a continuous variable are different for different groups. We use `aov()` to run the model. Let's see how this works with the `penguins` data:
+
+```{r}
+aov(body_mass_g ~ species, data = penguins)
+```
+
+Note: there are a different number of each species of penguins, which means this is an unbalanced ANOVA. Not ideal statistically. We get a note to this effect in the output.
+
+We can get more information from the results with the summary function:
+
+```{r}
+my_aov1 <- aov(body_mass_g ~ species, data=penguins)
+summary(my_aov1)
+```
+
+We can add in additional blocking variables or do a two-way ANOVA
+
+```{r}
+my_aov2 <- aov(body_mass_g ~ species + sex, data=penguins)
+summary(my_aov2)
+```
+
+Which of these models is better? We can use `anova()` to compare models created with `aov()`.
+
+```{r}
+anova(my_aov1, my_aov2)
+```
+
+What's the error? There were missing values in the sex variable, so there's a different number of observations in the two models. The comparison between two or more models will only be valid if they are fitted to the same dataset. We can address this by using only observations with no missing values at all:
+
+```{r}
+my_aov1 <- aov(body_mass_g ~ species, data=na.omit(penguins))
+my_aov2 <- aov(body_mass_g ~ species + sex, data=na.omit(penguins))
+anova(my_aov1, my_aov2)
+```
+
+Adding sex results in a better fitting model.
+
+### EXERCISE
+
+Test if adding the variable `year` improves on the model `my_aov2` above.
+
+```{r}
+my_aov3 <- aov(body_mass_g ~ species + sex + year, data=na.omit(penguins))
+anova(my_aov2, my_aov3)
+```
+
+## Linear Regression
+
+To compute a linear regression, we use the `lm()` function (linear model) and the special formula syntax:
+
+```{r}
+reg1 <- lm(body_mass_g ~ flipper_length_mm + bill_length_mm , data=penguins)
+reg1
+```
+
+To get more than just the coefficient estimates in the output, use the summary function on the resulting regression object:
+
+```{r}
+summary(reg1)
+```
+
+The result of the regression is an lm model object, which contains multiple pieces of information. We can access these different components if we need to.
+
+```{r}
+names(reg1)
+```
+
+```{r}
+reg1$coefficients
+```
+
+The result of the summary function is a different object, with some different components:
+
+```{r}
+names(summary(reg1))
+```
+
+But we can still extract the information
+
+```{r}
+summary(reg1)$coefficients
+```
+
+Finally, simply using the generic `plot()` function on a regression model provides some very helpful information:
+
+```{r}
+plot(reg1)
+```
+
+If you want to compare several models you can use the `AIC()` or `BIC()` functions. Lower scores are better.
+
+```{r}
+reg1 <- lm(body_mass_g ~ flipper_length_mm + bill_length_mm , data=penguins)
+reg2 <- lm(body_mass_g ~ flipper_length_mm + bill_length_mm  + bill_depth_mm, data=penguins)
+reg3 <- lm(body_mass_g ~ flipper_length_mm + bill_length_mm  + sex, data=penguins)
+
+AIC(reg1, reg2, reg3)
+
+BIC(reg1, reg2, reg3)
+```
+
+### EXERCISE
+
+Does body mass depend on species and/or sex?
+
+```{r}
+reg <- lm(body_mass_g ~ species*sex, data=penguins)
+summary(reg)
+```
+
+### EXERCISE
+
+Test if there is a significant interaction between flipper length and bill length for predicting body mass in male Gentoo penguins. Hint: use `pred1:pred2` to add an interaction term between two predictors in the formula.
+
+```{r}
+reg <- lm(body_mass_g ~ flipper_length_mm:bill_length_mm, data=penguins)
+summary(reg)
+```
+
+### EXERCISE
+
+Which among the three species has the highest $R^2$ value for predicting body mass from flipper length?
+
+```{r}
+
+my_formula <- body_mass_g ~ flipper_length_mm
+
+for (sp in levels(penguins$species)) {
+  # subset data by species
+  data_subset <- penguins[penguins$species == sp, ]
+  
+  # make a linear model
+  model <- lm(my_formula, data_subset)
+  
+  # extract the r2 from the model
+  r_squared <- summary(model)$r.squared
+  r_squared <- round(r_squared, digits=3) # round to format the output text
+  
+  # create text output to print
+  text <- paste(sp, as.character(r_squared), sep=" - ")
+  
+  # print
+  print(text)
+}
+```
+
+## Logistic Regression
+
+Other types of linear regression models, such as logit and probit models for binary outcome variables, can be run with the `glm()`function.
+
+Let's see how this works. Let's try to predict sex based on other features.
+
+```{r}
+table(penguins$sex)
+```
+
+We need the y/dependent/outcome variable to be 0/1 or TRUE/FALSE, which converts to 0/1
+
+```{r}
+penguins$sex <- penguins$sex == "female"
+table(penguins$sex)
+```
+
+The main difference from a ordinary linear regression is that we use the `glm()` function instead of `lm()` and we specify the family to indicate the type of model.
+
+```{r}
+logit1 <- glm(sex ~ body_mass_g + flipper_length_mm , data=penguins,
+              family="binomial")
+summary(logit1)
+```
