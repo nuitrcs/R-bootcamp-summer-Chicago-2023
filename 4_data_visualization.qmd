@@ -141,7 +141,7 @@ For now, let's just add a smoothing layer using `geom_smooth(method='lm')`. Sinc
 g <- ggplot(midwest, aes(x=area, y=poptotal)) + 
   geom_point() + 
   geom_smooth(method="lm")  # set se=FALSE to turnoff confidence bands
-plot(g)
+g
 ```
 
 The line of best fit is in blue. Can you find out what other `method` options are available for `geom_smooth`?(note: see `?geom_smooth`).
@@ -209,6 +209,37 @@ plot(g1)
 ```
 
 Since all points were considered, the line of best fit did not change.
+
+### **Method 3**: Using the scales layer
+
+Scales in *ggplot2* control the mapping from data to aesthetics. They take your data and turn it into something that you can see, like size, colour, position or shape. They also provide the tools that let you interpret the plot: the axes and legends. You can generate plots with ggplot2 without knowing how scales work, but understanding scales and learning how to manipulate them will give you much more control. To get an in-depth understanding of how scales work in *ggplot2* see [this](https://ggplot2-book.org/scales-guides).
+
+An important property of *ggplot2* is the principle that every aesthetic in your plot is associated with exactly one scale. For instance, when you write this:
+
+```{r}
+ggplot(midwest, aes(x=area, y=poptotal)) + 
+  geom_point()
+```
+
+*ggplot2* adds a default scale for each aesthetic used in the plot:
+
+```{r}
+ggplot(midwest, aes(x=area, y=poptotal)) + 
+  geom_point() +
+  scale_x_continuous() + 
+  scale_y_continuous() 
+```
+
+Inside the `scale` layer, you can add limits as:
+
+```{r}
+ggplot(midwest, aes(x=area, y=poptotal)) + 
+  geom_point() +
+  scale_x_continuous(limits=c(0, 0.1)) + 
+  scale_y_continuous(limits=c(0, 1000000)) 
+```
+
+Position scales have many more features that you can [explore](https://ggplot2-book.org/scales-position).
 
 ## EXERCISE
 
@@ -309,7 +340,7 @@ gg <- ggplot(midwest, aes(x=area, y=poptotal)) +
        y="Population", 
        x="Area", 
        caption="Midwest Demographics")
-plot(gg)
+gg
 ```
 
 Now each point is colored based on the `state` it belongs because of `aes(col=state)`. Not just color, but `size`, `shape`, `stroke` (thickness of boundary) and `fill` (fill color) can be used to discriminate groupings.
@@ -320,7 +351,21 @@ As an added benefit, the legend is added automatically. If needed, it can be rem
 gg + theme(legend.position="None")  # remove legend
 ```
 
-Also, You can change the color palette entirely.
+### Scales for color
+
+Just like you can add scales for position, you can also add [scales for color](https://ggplot2-book.org/scales-colour).
+
+The default scale for continuous fill scales is `scale_fill_continuous()` which in turn defaults to `scale_fill_gradient()`. As a consequence, these three commands produce the same plot using a gradient scale:
+
+```{r}
+gg
+
+gg + scale_fill_continuous()
+
+gg + scale_fill_gradient()
+```
+
+You can change the color palette entirely using a different color scale:
 
 ```{r}
 gg + scale_colour_brewer(palette = "Set1")  # change color palette
