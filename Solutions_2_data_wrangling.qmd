@@ -405,7 +405,7 @@ You can inspect the elements, and *levels*, i.e. values that the categorical var
 levels(smoke2)
 ```
 
-So far, we haven't solved neither the problem of the categories being in the wrong order nor that invalid `No` value. To fix both these problems, we can use the `levels` argument in `factor`:
+So far, we have solved neither the problem of the categories being in the wrong order nor that invalid `No` value. To fix both these problems, we can use the `levels` argument in `factor`:
 
 ```{r}
 smoke2 <- factor(smoke, levels = c("Never", "Occasionally", "Regularly", "Heavy"),
