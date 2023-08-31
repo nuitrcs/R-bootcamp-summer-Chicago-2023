@@ -1177,6 +1177,6 @@ Which school had the greatest increase in the number of degrees awarded between 
 total_11 <- aggregate(count ~ school, data = phds[phds$year=="2010-11",], sum)
 total_22 <- aggregate(count ~ school, data = phds[phds$year=="2021-22",], sum)
 
-total_22$difference = total_22$count - total_11$count
+total_22$difference <- total_22$count - total_11$count
 total_22
 ```

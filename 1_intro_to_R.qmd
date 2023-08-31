@@ -127,7 +127,7 @@ To make a project you would click File \> New Project, then follow the prompts. 
 
 ### EXERCISE
 
-Check that you are currently working within the `R-bootcamp-summer-Chicago-2023` Project. If not, open the relevant .RProj file in a new RStudio session.
+Check that you are currently working within the `R-bootcamp-summer-Chicago-2023` Project. If not, save any changes you've made to this file (or others in this folder), and then open the relevant .RProj file to open the project (which will restart your R session as well).
 
 ```{r}
 
@@ -218,6 +218,8 @@ install.packages(c("palmerpenguins", "tidyverse", "janitor"))
 Packages are installed from a repository. CRAN (Comprehensive R Archive Network) is the most common. People also install packages from Bioconductor and GitHub (process differs for these).
 
 The Packages tab in the bottom right of RStudio can help you install and update packages.
+
+If you're asked a question about whether you want to install packages from source, say NO.  
 
 ## Using Packages
 
@@ -369,6 +371,8 @@ We can also use the vectors in expressions:
 ```{r}
 month_info$days/7
 ```
+
+When using vectors in math expressions
 
 ## EXERCISE
 
