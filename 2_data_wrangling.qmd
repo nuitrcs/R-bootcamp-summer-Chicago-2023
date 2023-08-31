@@ -274,7 +274,7 @@ Things you need to figure out: how do you know what the sequence should go to? H
 
 ### Piping with `|>`
 
-Pipes are a powerful tool for clearly expressing a sequence of multiple operations. You will learn more about them in the Tidyverse workshop, however R 4.1.0 introduced a native pipe operator `|>`. By default, the pipe passes the object on its left-hand side to the first argument of the function on the right-hand side.
+Pipes are a powerful tool for clearly expressing a sequence of multiple operations. You can learn more about them in the Tidyverse workshop we offer, however R 4.1.0 introduced a native pipe operator `|>`. By default, the pipe passes the object on its left-hand side to the first argument (input) of the function on the right-hand side.
 
 ```{r}
 evp <- read.csv("data/ev_police_jan.csv")
@@ -393,7 +393,7 @@ You can inspect the elements, and *levels*, i.e. values that the categorical var
 levels(smoke2)
 ```
 
-So far, we haven't solved neither the problem of the categories being in the wrong order nor that invalid `No` value. To fix both these problems, we can use the `levels` argument in `factor`:
+So far, we have solved neither the problem of the categories being in the wrong order nor that invalid `No` value. To fix both these problems, we can use the `levels` argument in `factor`:
 
 ```{r}
 smoke2 <- factor(smoke, levels = c("Never", "Occasionally", "Regularly", "Heavy"),

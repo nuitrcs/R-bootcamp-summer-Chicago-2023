@@ -84,7 +84,8 @@ Also note that `aes()` function is used to specify the X and Y axes. That's beca
 Let's make a scatterplot on top of the blank ggplot by adding points using a geom layer called `geom_point`
 
 ```{r}
-ggplot(midwest, aes(x=area, y=poptotal)) + geom_point()
+ggplot(midwest, aes(x=area, y=poptotal)) + 
+  geom_point()
 ```
 
 Notice how layering works with the + operator.
@@ -97,22 +98,26 @@ Like `geom_point()`, there are many such geom layers such as `geom_line` , `geom
 
 ```{r}
 # histogram of county area
-ggplot(midwest, aes(x=area)) + geom_histogram(bins=100)
+ggplot(midwest, aes(x=area)) + 
+  geom_histogram(bins=100)
 ```
 
 ```{r}
 # density plot of county area
-ggplot(midwest, aes(x=area)) + geom_density()
+ggplot(midwest, aes(x=area)) + 
+  geom_density()
 ```
 
 ```{r}
 # make a boxplot
-ggplot(midwest, aes(x=area, y=state)) + geom_boxplot(aes(fill=state)) 
+ggplot(midwest, aes(x=area, y=state)) + 
+  geom_boxplot() 
 ```
 
 ```{r}
 # make a violinplot
-ggplot(midwest, aes(x=area, y=state)) + geom_violin(aes(fill=state))
+ggplot(midwest, aes(x=area, y=state)) + 
+  geom_violin()
 ```
 
 ## EXERCISE
@@ -124,8 +129,8 @@ Make a scatterplot of flipper length and body mass with point representations fo
 ```{r}
 library(palmerpenguins)
 
-penguin_plot = ggplot(data = .... , aes(x = ..., y = ...)) + geom_....()
-penguin_plot
+ggplot(data = .... , aes(x = ..., y = ...)) + 
+  geom_....()
 ```
 
 ## Adding a statistic to your plot
@@ -133,8 +138,9 @@ penguin_plot
 For now, let's just add a smoothing layer using `geom_smooth(method='lm')`. Since the `method` is set as `lm` (short for [*linear model*](http://r-statistics.co/Linear-Regression.html)), it draws the line of best fit.
 
 ```{r}
-g <- ggplot(midwest, aes(x=area, y=poptotal)) + geom_point() + geom_smooth(method="lm")  
-# set se=FALSE to turnoff confidence bands
+g <- ggplot(midwest, aes(x=area, y=poptotal)) + 
+  geom_point() + 
+  geom_smooth(method="lm")  # set se=FALSE to turnoff confidence bands
 plot(g)
 ```
 
@@ -152,7 +158,7 @@ Add a linear fit line to the `penguin_plot` from before
 
 ## EXERCISE
 
-What if I just want a smooth (non-linear) fit to the plot above? Hint: use method `loess`
+What if I just want a smooth (non-linear) fit to the plot above? Hint: use method `"loess"`
 
 ```{r}
 
@@ -169,11 +175,15 @@ This will change the lines of best fit or smoothing lines as compared to the ori
 This can be done by `xlim()` and `ylim()`. You can pass a numeric vector of length 2 (with max and min values) or just the max and min values itself.
 
 ```{r}
-g <- ggplot(midwest, aes(x=area, y=poptotal)) + geom_point() + geom_smooth(method="lm")  # set se=FALSE to turnoff confidence bands
+g <- ggplot(midwest, aes(x=area, y=poptotal)) + 
+  geom_point() + 
+  geom_smooth(method="lm")  # set se=FALSE to turnoff confidence bands
+g
 
 # Delete the points outside the limits
-g + xlim(c(0, 0.1)) + ylim(c(0, 1000000))   # deletes points
-# g + xlim(0, 0.1) + ylim(0, 1000000)   # deletes points
+g + 
+  xlim(c(0, 0.1)) + 
+  ylim(c(0, 1000000))   # deletes points
 ```
 
 In this case, the chart was not built from scratch but rather was built on top of `g`. This is because, the previous plot was stored as `g`, a ggplot object, which when called will reproduce the original plot. Using ggplot, you can add more layers, themes and other settings on top of this plot.
@@ -187,11 +197,14 @@ The other method is to change the X and Y axis limits by zooming in to the regio
 Let's store this plot as `g1`.
 
 ```{r}
-g <- ggplot(midwest, aes(x=area, y=poptotal)) + geom_point() + geom_smooth(method="lm")  # set se=FALSE to turnoff confidence bands
+g <- ggplot(midwest, aes(x=area, y=poptotal)) + 
+  geom_point() + 
+  geom_smooth(method="lm")  # set se=FALSE to turnoff confidence bands
 
 # Zoom in without deleting the points outside the limits. 
 # As a result, the line of best fit is the same as the original plot.
-g1 <- g + coord_cartesian(xlim=c(0,0.1), ylim=c(0, 1000000))  # zooms in
+g1 <- g + 
+  coord_cartesian(xlim=c(0,0.1), ylim=c(0, 1000000))  # zooms in
 plot(g1)
 ```
 
@@ -210,16 +223,28 @@ Limit the flipper length to values between 180 and 220 in `penguin_plot` without
 I have stored this as `g1`. Let's add the plot title and labels for X and Y axis. This can be done in one go using the `labs()` function with `title`, `x` and `y` arguments. Another option is to use the `ggtitle()`, `xlab()` and `ylab()`.
 
 ```{r}
-g <- ggplot(midwest, aes(x=area, y=poptotal)) + geom_point() + geom_smooth(method="lm")  # set se=FALSE to turnoff confidence bands
+g <- ggplot(midwest, aes(x=area, y=poptotal)) + 
+  geom_point() + 
+  geom_smooth(method="lm")  # set se=FALSE to turnoff confidence bands
 
-g1 <- g + coord_cartesian(xlim=c(0,0.1), ylim=c(0, 1000000))  # zooms in
+g1 <- g + 
+  coord_cartesian(xlim=c(0,0.1), ylim=c(0, 1000000))  # zooms in
 
 # Add Title and Labels
-g1 + labs(title="Area Vs Population", subtitle="From midwest dataset", y="Population", x="Area", caption="Midwest Demographics")
+g1 + 
+  labs(title="Area Vs Population", 
+       subtitle="From midwest dataset", 
+       y="Population", 
+       x="Area", 
+       caption="Midwest Demographics")
 
 # or
 
-g1 + ggtitle("Area Vs Population", subtitle="From midwest dataset") + xlab("Area") + ylab("Population")
+g1 + 
+  ggtitle("Area Vs Population", 
+          subtitle="From midwest dataset") + 
+  xlab("Area") + 
+  ylab("Population")
 ```
 
 Excellent! So here is the full function call.
@@ -229,7 +254,11 @@ ggplot(midwest, aes(x=area, y=poptotal)) +
   geom_point() + 
   geom_smooth(method="lm") + 
   coord_cartesian(xlim=c(0,0.1), ylim=c(0, 1000000)) + 
-  labs(title="Area Vs Population", subtitle="From midwest dataset", y="Population", x="Area", caption="Midwest Demographics")
+  labs(title="Area Vs Population", 
+       subtitle="From midwest dataset", 
+       y="Population", 
+       x="Area", 
+       caption="Midwest Demographics")
 ```
 
 ## EXERCISE
@@ -251,7 +280,11 @@ ggplot(midwest, aes(x=area, y=poptotal)) +
   geom_point(col="steelblue", size=3) +   # Set static color and size for points
   geom_smooth(method="lm", col="firebrick") +  # change the color of line
   coord_cartesian(xlim=c(0, 0.1), ylim=c(0, 1000000)) + 
-  labs(title="Area Vs Population", subtitle="From midwest dataset", y="Population", x="Area", caption="Midwest Demographics")
+  labs(title="Area Vs Population", 
+       subtitle="From midwest dataset", 
+       y="Population", 
+       x="Area", 
+       caption="Midwest Demographics")
 ```
 
 ## EXERCISE
@@ -271,7 +304,11 @@ gg <- ggplot(midwest, aes(x=area, y=poptotal)) +
   geom_point(aes(col=state), size=3) +  # Set color to vary based on state categories.
   geom_smooth(method="lm", col="firebrick", size=2) + 
   coord_cartesian(xlim=c(0, 0.1), ylim=c(0, 1000000)) + 
-  labs(title="Area Vs Population", subtitle="From midwest dataset", y="Population", x="Area", caption="Midwest Demographics")
+  labs(title="Area Vs Population", 
+       subtitle="From midwest dataset", 
+       y="Population", 
+       x="Area", 
+       caption="Midwest Demographics")
 plot(gg)
 ```
 
@@ -307,10 +344,15 @@ Change the color of the points according to the species column for `penguin_plot
 Note - You can also do this by setting `group` in `aes` , and setting the aesthetics for `geom_point` separately. This is useful if you want to plot multiple geoms in a plot (eg scatter points and a regression line).
 
 ```{r}
-ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g, group=species)) +
+ggplot(data=penguins, 
+       aes(x = flipper_length_mm, 
+           y = body_mass_g, 
+           group = species)) +
   geom_point(aes(color = species)) +
   geom_smooth(method="lm", aes(color = species)) + 
-  labs(x = "Flipper length (mm)", y = "Body mass (g)", title = "Penguins Data")
+  labs(x = "Flipper length (mm)", 
+       y = "Body mass (g)", 
+       title = "Penguins Data")
 ```
 
 # Themes
@@ -323,10 +365,15 @@ I like using the `theme_pubr()` from the `{ggpubr}` package:
 #install.packages("ggpubr")
 library(ggpubr)
 
-ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g, group=species)) +
+ggplot(data=penguins, 
+       aes(x = flipper_length_mm, 
+           y = body_mass_g, 
+           group = species)) +
   geom_point(aes(color = species)) +
   geom_smooth(method="lm", aes(color = species)) + 
-  labs(x = "Flipper length (mm)", y = "Body mass (g)", title = "Penguins Data") +
+  labs(x = "Flipper length (mm)", 
+       y = "Body mass (g)", 
+       title = "Penguins Data") +
   theme_pubr()
 ```
 
@@ -335,10 +382,15 @@ Themes can be [customized](https://rpubs.com/mclaire19/ggplot2-custom-themes) to
 The [`{ggsci}`](https://cran.r-project.org/web/packages/ggsci/vignettes/ggsci.html) package offers a collection of high-quality color palettes inspired by colors used in scientific journals, data visualization libraries, science fiction movies, and TV shows. But there are several in-built themes in ggplot that you can use:
 
 ```{r}
-ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g, color=species)) +
+ggplot(data=penguins, 
+       aes(x = flipper_length_mm, 
+           y = body_mass_g, 
+           color = species)) +
   geom_point() +
   geom_smooth(method="lm") +
-  labs(x = "Flipper length (mm)", y = "Body mass (g)", title = "Penguins Data") +
+  labs(x = "Flipper length (mm)", 
+       y = "Body mass (g)", 
+       title = "Penguins Data") +
   theme_classic()
 ```
 
@@ -347,9 +399,16 @@ ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g, color=species)
 Themes are extremely versatilt. For example, theme options let you change the axis font styles using custom inputs:
 
 ```{r}
-ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g, color=species)) +
-  geom_point() + theme_classic() +
-  theme(axis.title.x = element_text(color="dodgerblue", size=15, face="italic", family="Comic Sans MS"))
+ggplot(data=penguins, 
+       aes(x = flipper_length_mm, 
+           y = body_mass_g, 
+           color = species)) +
+  geom_point() + 
+  theme_classic() +
+  theme(axis.title.x = element_text(color="dodgerblue", 
+                                    size=15, 
+                                    face="italic", 
+                                    family="Comic Sans MS"))
 ```
 
 Notice how the theme custom input over-rides the defaults set in `theme_classic()` . The order of layering matters. The last passed input will be retained.
@@ -367,23 +426,41 @@ Add a theme of your choosing from [here](https://r-charts.com/ggplot2/themes/) t
 The graph above still looks quite messy. Maybe we want to separate out the three species into individual panels.
 
 ```{r}
-ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g, group=species)) +
-  geom_point(aes(color = species), size = 2, alpha = 0.8) +
-  geom_smooth(method="lm", aes(color=species, fill=species), alpha=0.1) + 
-  theme_classic() +
-  labs(x = "Flipper length (mm)", y = "Body mass (g)", title = "Penguins Data") +
-  facet_grid(~species) # facet by species -- note the use of a formula!!
+ggplot(data=penguins, 
+       aes(x = flipper_length_mm, 
+           y = body_mass_g, 
+           group = species)) +
+  geom_point(aes(color = species), 
+             size = 2, 
+             alpha = 0.8) +
+  geom_smooth(method="lm", 
+              aes(color=species, 
+                  fill=species), 
+              alpha=0.1) + 
+  facet_grid(~species) + # facet by species -- note the use of a formula!!
+  labs(x = "Flipper length (mm)",
+       y = "Body mass (g)", 
+       title = "Penguins Data") +
+  theme_classic() 
 ```
 
 You can separate by more than one column, for example:
 
 ```{r}
-ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g, group=species)) +
-  geom_point(aes(color = species), size = 2, alpha = 0.8) +
-  geom_smooth(method="lm", aes(color=species, fill=species), alpha=0.1) + 
-  theme_classic() +
+ggplot(data=penguins, 
+       aes(x = flipper_length_mm, 
+           y = body_mass_g, 
+           group = species)) +
+  geom_point(aes(color = species), 
+             size = 2, 
+             alpha = 0.8) +
+  geom_smooth(method="lm", 
+              aes(color=species, fill=species), 
+              alpha=0.1) + 
+  facet_grid(~species + island) +
   labs(x = "Flipper length (mm)", y = "Body mass (g)", title = "Penguins Data") +
-  facet_grid(~species + island)
+  theme_classic() 
+  
 ```
 
 ## EXERCISE
@@ -402,12 +479,23 @@ Suppose you created a bunch of plots and now you want to save them, you can use 
 
 ```{r}
 # save the plot object as a variable
-p <- ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g, group=species)) +
-  geom_point(aes(color = species), size = 2, alpha = 0.8) +
-  geom_smooth(method="lm", aes(color=species, fill=species), alpha=0.1) + 
-  theme_classic() +
-  labs(x = "Flipper length (mm)", y = "Body mass (g)", title = "Penguins Data") +
-  facet_grid(~species) # facet by species -- note the use of a formula!!
+p <-
+  ggplot(data = penguins, 
+         aes(x = flipper_length_mm, 
+             y = body_mass_g,
+             group = species)) +
+  geom_point(aes(color = species), 
+             size = 2, 
+             alpha = 0.8) +
+  geom_smooth(method = "lm",
+              aes(color = species, fill = species),
+              alpha = 0.1) +
+  facet_grid( ~ species) + # facet by species -- note the use of a formula!!
+  labs(x = "Flipper length (mm)", 
+       y = "Body mass (g)", 
+       title = "Penguins Data") +
+  theme_classic()
+  
 
 name <- "my_beautiful_plot.pdf"
 
@@ -423,11 +511,16 @@ Let's create another fictional plot first:
 ```{r}
 library(ggpubr)
 set.seed(1234)
-wdata = data.frame(sex = factor(rep(c("F", "M"), each=200)), weight = c(rnorm(200, 55), rnorm(200, 58)))
+wdata = data.frame(sex = factor(rep(c("F", "M"), each=200)), 
+                   weight = c(rnorm(200, 55), rnorm(200, 58)))
 
-plot_new <- ggdensity(wdata, x = "weight", 
-                      add="mean", rug=TRUE, 
-                      color = "sex", fill = "sex", palette = c("#00AFBB", "#E7B800"))
+plot_new <- ggdensity(wdata, 
+                      x = "weight", 
+                      add="mean", 
+                      rug=TRUE, 
+                      color = "sex", 
+                      fill = "sex", 
+                      palette = c("#00AFBB", "#E7B800"))
 plot_new
 ```
 
