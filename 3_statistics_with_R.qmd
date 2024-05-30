@@ -54,7 +54,8 @@ What can you say about the average number of bacterial colonies before and after
 Calculate the standard deviation of the number of bacterial colonies before antibiotic treatment.
 
 ```{r}
-
+sd(antibiotic$before)
+sd(antibiotic$after)
 ```
 
 ## Categorical data analysis
@@ -90,7 +91,7 @@ chisq.test(table(diamonds$cut, diamonds$color))
 Load the penguins dataset, and test if there is a dependence between the number of species collected by year.
 
 ```{r}
-
+chisq.test(penguins$species, penguins$year)
 ```
 
 ## Comparing means of continuous values
@@ -123,6 +124,7 @@ If we have a variable that splits our data into two groups, we can use the formu
 ```{r}
 # same as above
 t.test(formula = body_mass_g ~ sex, data=penguins)
+t.test(formula = body_mass_g ~ species, data=penguins[penguins$species!="Gentoo",])
 ```
 
 #### Formulas
@@ -162,7 +164,9 @@ t.test(antibiotic$before, antibiotic$after, paired=TRUE)
 Use `mtcars` data (read feature description [here](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/mtcars.html)) to test if the mode of transmission (encoded in `am`) significantly affects the miles per gallon `mpg` value.
 
 ```{r}
+t.test( mpg ~ am, data = mtcars )
 
+t.test(mtcars$mpg[mtcars$am==0], mtcars$mpg[mtcars$am==1])
 ```
 
 ### Correlation
@@ -198,7 +202,7 @@ cor.test( ~ bill_depth_mm + bill_length_mm, data = penguins, use="pairwise")
 Test the correlation between flipper length and body mass in `penguins` with a formula.
 
 ```{r}
-
+cor.test(~ flipper_length_mm  + body_mass_g, data=penguins, use="pairwise")
 ```
 
 ### ANOVA
@@ -246,7 +250,8 @@ Adding sex results in a better fitting model.
 Test if adding the variable `year` improves on the model `my_aov2` above.
 
 ```{r}
-
+my_aov3 <- aov(body_mass_g ~ species*sex, data = na.omit(penguins))
+anova(my_aov2, my_aov3)
 ```
 
 ## Linear Regression
@@ -295,9 +300,9 @@ plot(reg1)
 If you want to compare several models you can use the `AIC()` or `BIC()` functions. Lower scores are better.
 
 ```{r}
-reg1 <- lm(body_mass_g ~ flipper_length_mm + bill_length_mm , data=penguins)
-reg2 <- lm(body_mass_g ~ flipper_length_mm + bill_length_mm  + bill_depth_mm, data=penguins)
-reg3 <- lm(body_mass_g ~ flipper_length_mm + bill_length_mm  + sex, data=penguins)
+reg1 <- lm(body_mass_g ~ flipper_length_mm + bill_length_mm , data=na.omit(penguins))
+reg2 <- lm(body_mass_g ~ flipper_length_mm + bill_length_mm  + bill_depth_mm, data=na.omit(penguins))
+reg3 <- lm(body_mass_g ~ flipper_length_mm + bill_length_mm  + sex, data=na.omit(penguins))
 
 AIC(reg1, reg2, reg3)
 

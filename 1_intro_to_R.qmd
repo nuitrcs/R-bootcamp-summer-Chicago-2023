@@ -155,6 +155,8 @@ round(2.12345)
 round(log(16))
 ```
 
+In `round(log(16))` for example R first evaluates `log(16)` and then evaluates `round()` on that result.
+
 How do you learn function names? See the [R Reference Card](https://cran.r-project.org/doc/contrib/Baggott-refcard-v2.pdf) for some basics. Otherwise, look at the documentation for the packages you're using, or tutorials for the type of analysis you want to do.
 
 The inputs or arguments to a function have names. When we don't use the name, like above, it matches the values in order. But we can always use the argument name:
@@ -219,7 +221,7 @@ Packages are installed from a repository. CRAN (Comprehensive R Archive Network)
 
 The Packages tab in the bottom right of RStudio can help you install and update packages.
 
-If you're asked a question about whether you want to install packages from source, say NO.  
+If you're asked a question about whether you want to install packages from source, say NO. This is because installing from source requires compiling into computer-readable documents which take time. If you say NO then R uses a pre-compiled version.
 
 ## Using Packages
 
@@ -345,9 +347,10 @@ Using the `penguins` data frame, write commands to figure out:
 -   Names of the variables?
 
 ```{r}
+nrow(penguins)
+ncol(penguins)
 
-
-
+names(penguins)
 ```
 
 ## Working with Variables
@@ -387,12 +390,12 @@ What is the standard deviation in the number of doctoral degrees issued each yea
 How many total masters degrees were issued for the years in the data? Hint: `sum()`
 
 ```{r}
+degrees <- read.csv("data/nu_degrees.csv")
+View(degrees)
 
-
-
-
-
-
+mean(degrees$bachelors)
+sd(degrees$doctorates)
+sum(degrees$masters)
 ```
 
 Challenge: How many total degrees were issued each year? How many total degrees were issued across all years and types?
@@ -447,7 +450,9 @@ What is the mean for the second 5 years in the data?
 What is the mean number of doctoral degrees per year excluding the most recent year of 2021-22?
 
 ```{r}
-
+mean(degrees$bachelors[1:5])
+mean(degrees$bachelors[6:10])
+mean(degrees$doctorates[-nrow(degrees)])
 ```
 
 ## Detour: Tibbles vs. Data Frames
@@ -526,7 +531,7 @@ month_info[c(1, 3), ]
 Using the Northwestern degree data set from above: select rows 2 through 5, and columns 1 through 2
 
 ```{r}
-
+degrees[2:5, 1:2]
 ```
 
 Challenge: look up the `seq()` function in the Help. Use it to select every other row from the degree data.
@@ -628,7 +633,14 @@ penguins[penguins$bill_length_mm < 34 | penguins$bill_length_mm > 58,]
 Which years were more than 600 doctoral degrees awarded? You might want to break this down into two steps: 1) write an expression for determining whether there were more than 600 doctoral degrees, then 2) use that expression to index the correct column of your degrees data.
 
 ```{r}
+# degree is doctoral
+# number > 600
+# dataset - degrees
+degrees <- read.csv("data/nu_degrees.csv") # read your data
+names(degrees)
 
+degrees$doctorates > 600
+degrees[ degrees$doctorates > 600, "year"]
 ```
 
 # Missing Values
@@ -663,7 +675,9 @@ If we don't want the missing rows included in our results above when we were sel
 is.na(penguins$bill_length_mm)
 !is.na(penguins$bill_length_mm)  # ! is not
 
+# not missing bill length AND bill length < 34
 penguins[!is.na(penguins$bill_length_mm) & penguins$bill_length_mm < 34,]
+penguins[penguins$bill_length_mm < 34,]
 ```
 
 The function `complete.cases()` can be used to find which rows have no missing values at all:
@@ -674,6 +688,12 @@ complete.cases(penguins)
 penguins[complete.cases(penguins),] ## effectively drops rows with any missing values
 ```
 
+The function `na.omit()` can be used to shorten the above calls, it directly returns the subset of data with complete cases.
+
+```{r}
+na.omit(penguins) # is the same as code chunk above
+```
+
 ## EXERCISE
 
 How many missing values in `penguins$bill_depth_mm`?
@@ -681,19 +701,46 @@ How many missing values in `penguins$bill_depth_mm`?
 What is the mean of the non-missing values of `penguins$bill_depth_mm`?
 
 ```{r}
+sum(is.na(penguins$bill_depth_mm)) # number of NAs
 
+# non-missing values
+# mean of these non-NAs
+
+!is.na(penguins$bill_depth_mm) # filter my dataset -- filtering on rows
+penguins[ !is.na(penguins$bill_depth_mm) , ] # rows of interest
+
+penguins[ !is.na(penguins$bill_depth_mm) , "bill_depth_mm"] # returns a tibble
+
+vector <- penguins[ !is.na(penguins$bill_depth_mm) , ]$bill_depth_mm # returns a vector
+
+mean(vector)
 ```
 
 Challenge: Select the rows from penguins where `penguins$bill_depth_mm` is missing.
 
 ```{r}
-
+penguins[ is.na(penguins$bill_depth_mm),]
 ```
 
 Challenge: What is the mean of non-missing values of `penguins$bill_depth_mm` for penguins of species Gentoo?
 
 ```{r}
+# mean
+# non-NAs
+# column - bill depth
+# species - Gentoo
 
+penguins$species == "Gentoo" # logical vector -- filtering condition
+!is.na(penguins$bill_depth_mm)  # logical vector -- filtering condition
+
+# condition 1 & condition 2
+penguins$species == "Gentoo" & !is.na(penguins$bill_depth_mm) # logical vector
+
+penguins$bill_depth_mm[penguins$species == "Gentoo" & !is.na(penguins$bill_depth_mm)]
+
+penguins[penguins$species == "Gentoo" & !is.na(penguins$bill_depth_mm), ]$bill_depth_mm # numerical vector
+
+mean(penguins[penguins$species == "Gentoo" & !is.na(penguins$bill_depth_mm), ]$bill_depth_mm )
 ```
 
 # Column Names
@@ -792,20 +839,26 @@ names(penguins)
 Using `month_info`: make a new variable as part of `month_info`, called `weeks`, that is the number of days divided by 7.
 
 ```{r}
+# create month_info dataframe manually
+month_info <- data.frame(month=month.name,
+                         index=1:12,
+                         days=c(31,28,31,30,31,30,31,31,30,31,30,31))
+month_info
 
-
+month_info$weeks <- month_info$days/7
 ```
 
 Make a new column in the degrees data with the total number of degrees awarded each year
 
 ```{r}
-
+degrees$total <-  degrees$bachelors + degrees$masters + degrees$doctorates
 ```
 
 Challenge: Make a new logical column called `long_month` that is TRUE if the month has 31 days
 
 ```{r}
-
+# month has 31 days
+month_info$long_month <-  month_info$days == 31  # logical vector
 ```
 
 # Dropping Variables
@@ -817,7 +870,7 @@ month_info
 
 month_info[, 1:3]
 
-month_info <- month_info[, 1:3]
+month_info <- month_info[, -c(2,6)]
 ```
 
 Or with names:
@@ -875,7 +928,8 @@ some_numbers <- data.frame(v1 = rnorm(10), v2 = runif(10))
 Replace all values of v1 that are below 0 with the value 0
 
 ```{r}
-
+# values to replace. <- replacer 
+some_numbers$v1[some_numbers$v1 < 0] <- 0
 ```
 
 # Building Up Expressions
@@ -1012,7 +1066,7 @@ mean(penguins$bill_length_mm[penguins$species == "Chinstrap"], na.rm=TRUE)
 mean(penguins$bill_length_mm[penguins$species == "Gentoo"], na.rm=TRUE)
 ```
 
-But there are functions in R that will help us aggregate our data by categorical variables and compute summary measures.
+But there are functions in R that will help us aggregate our data by categorical variables and compute summary measures. We will learn more about that when we cover Factors tomorrow.
 
 First, `tapply`, which applies a function to a vector grouped by a second vector.
 
