@@ -21,7 +21,9 @@ Often, plotting your data will be much more informative than summary statistics 
 
 ## Installing `{ggplot2}`
 
-First, install and load the *ggplot2* package in your workspace.
+Here is a handy [cheat sheet for ggplot2](https://statsandr.com/blog/files/ggplot2-cheatsheet.pdf)! Most users rely on the cheat-sheet because it is often difficult to remember the exact syntax and options.
+
+Install and load the *ggplot2* package in your workspace as below.
 
 ```{r}
 # install.packages("ggplot2")
@@ -48,7 +50,7 @@ Typically, to build or describe any visualization with one or more dimensions, w
 
 7.  **Coordinate system:** What kind of a coordinate system should the visualization be based on ---should it be cartesian or polar?
 
-Here is a handy [cheat sheet for ggplot2](https://statsandr.com/blog/files/ggplot2-cheatsheet.pdf)!
+    You don't have to remember everything - refer to your handy [cheat sheet for ggplot2](https://statsandr.com/blog/files/ggplot2-cheatsheet.pdf)!
 
 # Understanding the `{ggplot}` Syntax
 
@@ -57,6 +59,8 @@ The syntax for constructing ggplots could be puzzling if you are a beginner or w
 -   `{ggplot}` works with dataframes and not individual vectors. All the data needed to make the plot is typically be contained within the dataframe supplied to the `ggplot()` itself or can be supplied to respective geoms.
 
 -   The second noticeable feature is that you can keep enhancing the plot by adding more layers (and themes) to an existing plot created using the `ggplot()` function
+
+-   The order of the layers matters, the first command/layer is executed first, and so on. Sometimes, this can make a difference in your final plot.
 
 Let's initialize a basic ggplot based on the midwest dataset:
 
@@ -245,6 +249,8 @@ scale_plot <- ggplot(midwest, aes(x=area, y=poptotal)) +
 
 Position scales have many more features that you can [explore](https://ggplot2-book.org/scales-position).
 
+Scales maps from the data-points to the aesthetics, it does not delete data-points, rather it zooms in similar to `coord_cartesian()` .
+
 ## EXERCISE
 
 Limit the flipper length to values between 180 and 220 in `penguin_plot` without removing the original points from the best-fit line calculation
@@ -318,7 +324,7 @@ ggplot(penguins, aes(x = body_mass_g, y = flipper_length_mm)) +
 
 ### Set a static color or size
 
-We can change the aesthetics of a geom layer by modifying the respective geoms. Let's change the color of the points and the line to astatic value.
+We can change the aesthetics of a geom layer by modifying the respective geoms. Let's change the color of the points and the line to a static value.
 
 ```{r}
 ggplot(midwest, aes(x=area, y=poptotal)) +
@@ -634,7 +640,7 @@ You can create very [complicated layouts](https://cran.r-project.org/web/package
 
 # PRACTICE EXERCISES
 
-Several of these exercises will require you to google or look up the documentation especially for custom theme inputs.
+Several of these exercises will require you to Google or look up the documentation especially for custom theme inputs.
 
 Load in the data set below:
 
